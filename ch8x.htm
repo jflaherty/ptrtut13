@@ -1,0 +1,142 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 8</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 8: Pointers to Arrays</H2>
+
+    Pointers, of course, can be &quot;pointed at&quot; any type of data
+object, including arrays.  While that was evident when we
+discussed program 3.1, it is important to expand on how we do
+this when it comes to multi-dimensional arrays.
+
+<P>
+    To review, in Chapter 2 we stated that given an array of
+integers we could point an integer pointer at that array using:
+
+<PRE>
+    int *ptr;
+    ptr = &amp;my_array[0];       /* point our pointer at the first
+                                 integer in our array */
+</PRE>
+
+As we stated there, the type of the pointer variable must match
+the type of the first element of the array.
+
+<P>
+
+    In addition, we can use a pointer as a formal parameter of a
+function which is designed to manipulate an array.  e.g.
+
+<P>
+    Given:
+<PRE>
+    int array[3] = {'1', '5', '7'};
+    void a_func(int *p);
+</PRE>
+
+Some programmers might prefer to write the function prototype as:
+
+<PRE>
+   void a_func(int p[]);
+</PRE>
+
+which would tend to inform others who might use this function that the 
+function is designed to manipulate the elements of an array.  Of course, in 
+either case, what actually gets passed is the value of a pointer to the first 
+element of the array, independent of which notation is used in the function
+prototype or definition.  Note that if the array notation is used, there is no 
+need to pass the actual dimension of the array since we
+are not passing the whole array, only the address to the first element.
+
+
+<P>
+
+    We now turn to the problem of the 2 dimensional array.  As
+stated in the last chapter, C interprets a 2 dimensional array as
+an array of one dimensional arrays.  That being the case, the
+first element of a 2 dimensional array of integers is a one
+dimensional array of integers.  And a pointer to a two
+dimensional array of integers must be a pointer to that data
+type.  One way of accomplishing this is through the use of the
+keyword &quot;typedef&quot;.  typedef assigns a new name to a specified
+data type.  For example:
+
+<PRE>
+    typedef unsigned char byte;
+</PRE>
+
+causes the name <B>byte</B> to mean type <B>unsigned char</B>.  Hence
+
+<PRE>
+    byte b[10];     would be an array of unsigned characters.
+</PRE>
+
+Note that in the typedef declaration, the word <B>byte</B> has
+replaced that which would normally be the name of our <B>unsigned
+char</B>.  That is, the rule for using <B>typedef</B> is that the new name
+for the data type is the name used in the definition of the data
+type.  Thus in:
+
+<PRE>
+    typedef int Array[10];
+</PRE>
+
+Array becomes a data type for an array of 10 integers.  i.e.
+<B>Array my_arr;</B> declares <B>my_arr</B> as an array of 10 integers and
+<B>Array arr2d[5];</B> makes <B>arr2d</B> an array of 5 arrays of 10 integers each.
+
+<P>
+    Also note that  <B>Array *p1d;</B> makes <B>p1d</B> a pointer to an
+array of 10 integers.  Because <B>*p1d</B> points to the same type as
+<B>arr2d</B>, assigning the address of the two dimensional array <B>arr2d</B> to
+<B>p1d</B>, the pointer to a one dimensional array of 10 integers is
+acceptable.  i.e. <B>p1d = &amp;arr2d[0];</B> or <B>p1d = arr2d;</B>  are both correct.
+
+<P>
+
+    Since the data type we use for our pointer is an array of 10
+integers we would expect that incrementing <B>p1d</B> by 1 would change
+its value by <B>10*sizeof(int)</B>, which it does.  That is,  <B>sizeof(*p1d)</B>
+is 20.  You can prove this to yourself by writing and running a
+simple short program.
+
+<P>
+
+    Now, while using typedef makes things clearer for the reader
+and easier on the programmer, it is not really necessary.  What
+we need is a way of declaring a pointer like <B>p1d</B> without the need
+of the<B> typedef</B> keyword.  It turns out that this can be done and
+that
+
+<PRE>
+    int (*p1d)[10];
+</PRE>
+
+is the proper declaration, i.e. <B>p1d</B> here
+is a pointer to an array of 10 integers just as it was under the
+declaration using the Array type.  Note that this is different
+from
+
+<PRE>
+    int *p1d[10];
+</PRE>
+
+which would make <B>p1d</B> the name of an
+array of 10 pointers to type <B>int</B>.
+
+<DL>
+
+<DT><Center><A HREF=ch9x.htm>Continue with Pointer Tutorial</A></Center>
+
+</DT></P>
+
+<DT><Center><A Href=pointers.htm>Back to Table of Contents</Center></A><P>
+
+</DL>
+</BODY>
+</HTML>
+

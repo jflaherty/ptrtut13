@@ -1,0 +1,165 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 4</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 4: More on Strings</H2>
+
+    Well, we have progressed quite a way in a short time!  Let's
+back up a little and look at what was done in Chapter 3 on
+copying of strings but in a different light.  Consider the
+following function:
+
+<PRE>
+    char *my_strcpy(char dest[], char source[])
+    {
+        int i = 0;
+        while (source[i] != '\0')
+        {
+            dest[i] = source[i];
+            i++;
+        }
+        dest[i] = '\0';
+        return dest;
+    }
+</PRE>
+
+    Recall that strings are arrays of characters.  Here we have
+chosen to use array notation instead of pointer notation to do
+the actual copying.  The results are the same, i.e. the string
+gets copied using this notation just as accurately as it did
+before.  This raises some interesting points which we will
+discuss.
+
+<P>
+    Since parameters are passed by value, in both the passing of
+a character pointer or the name of the array as above, what
+actually gets passed is the address of the first element of each
+array.  Thus, the numerical value of the parameter passed is the
+same whether we use a character pointer or an array name as a
+parameter.  This would tend to imply that somehow<B> source[i]</B>
+is the same as <B>*(p+i)</B>.
+<P>
+    In fact, this is true, i.e wherever one writes <B>a[i]</B>  it can
+be replaced with  <B>*(a + i)</B> without any problems.  In fact, the
+compiler will create the same code in either case.  Thus we see
+that pointer arithmetic is the same thing as array indexing.
+Either syntax produces the same result.
+
+<P>
+
+    This is NOT saying that pointers and arrays are the same
+thing, they are not.  We are only saying that to identify a given
+element of an array we have the choice of two syntaxes, one using
+array indexing and the other using pointer arithmetic, which
+yield identical results.
+
+<P>
+
+    Now, looking at this last expression, part of it..  <B>(a + i)</B>,
+is a simple addition using the <B>+</B> operator and the rules of C
+state that such an expression is commutative.  That is  <B>(a + i)</B>
+is identical to <B>(i + a)</B>.  Thus we could write <B>*(i + a)</B> just as
+easily as <B>*(a + i)</B>.
+
+<P>
+
+    But <B>*(i + a)</B> could have come from <B>i[a]</B> !  From all of this
+comes the curious truth that if:
+
+<PRE>
+    char a[20];
+    int i;
+</PRE>
+   writing
+<PRE>
+    a[3] = 'x';
+</PRE>
+    is the same as writing
+<PRE>
+    3[a] = 'x';
+</PRE>
+
+    Try it!  Set up an array of characters, integers or longs,
+etc. and assigned the 3rd or 4th element a value using the
+conventional approach and then print out that value to be sure
+you have that working.  Then reverse the array notation as I have
+done above.  A good compiler will not balk and the results will
+be identical.  A curiosity... nothing more!
+
+<P>
+
+    Now, looking at our function above, when we write:
+
+<PRE>
+    dest[i] = source[i];
+</PRE>
+
+due to the fact that array indexing and pointer arithmetic yield
+identical results, we can write this as:
+
+<PRE>
+    *(dest + i) = *(source + i);
+</PRE>
+
+    But, this takes 2 additions for each value taken on by i.
+Additions, generally speaking, take more time than
+incrementations (such as those done using the <B>++</B> operator as in
+<B>i++</B>).  This may not be true in modern optimizing compilers, but
+one can never be sure.  Thus, the pointer version may be a bit
+faster than the array version.
+
+<P>
+
+    Another way to speed up the pointer version would be to
+change:
+
+<PRE>
+    while (*source != '\0')
+</PRE>
+
+    to simply
+
+<PRE>
+    while (*source)
+</PRE>
+
+since the value within the parenthesis will go to zero (FALSE) at
+the same time in either case.
+
+<P>
+
+    At this point you might want to experiment a bit with writing
+some of your own programs using pointers.  Manipulating strings
+is a good place to experiment.  You might want to write your own
+versions of such standard functions as:
+
+<PRE>
+    strlen();
+    strcat();
+    strchr();
+</PRE>
+
+and any others you might have on your system.
+
+<P>
+
+    We will come back to strings and their manipulation through
+pointers in a future chapter.  For now, let's move on and discuss
+structures for a bit.
+
+<DL>
+
+<DT><Center><A HREF=ch5x.htm>Continue with Pointer Tutorial</A></Center>
+
+</DT></P>
+
+<DT><Center><A Href=pointers.htm>Back to Table of Contents</Center></A><P>
+
+</DL>
+
+</BODY>
+</HTML>

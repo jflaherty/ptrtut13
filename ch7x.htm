@@ -1,0 +1,158 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 7</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 7: More on Multi-Dimensional Arrays</H2>
+
+    In the previous chapter we noted that given
+
+<PRE>
+    #define ROWS 5
+    #define COLS 10
+
+    int multi[ROWS][COLS];
+</PRE>
+
+we can access individual elements of the array <B>multi </B>using
+either:
+
+<PRE>
+    multi[row][col]
+</PRE>
+
+or
+
+<PRE>
+    *(*(multi + row) + col)
+</PRE>
+
+To understand more fully what is going on, let us replace
+
+<PRE>
+    *(multi + row)
+</PRE>
+
+with  <B> X</B>   as in:
+
+<PRE>
+    *(X + col)
+</PRE>
+
+    Now, from this we see that <B>X</B> is like a pointer since the
+expression is de-referenced and we know that <B>col</B> is an integer.
+Here the arithmetic being used is of a special kind called
+&quot;pointer arithmetic&quot; is being used.  That means that, since we
+are talking about an integer array, the address pointed to by
+(i.e. value of)   <B>X + col + 1</B>   must be greater than the address
+<B>X + col</B>   by and amount equal to <B>sizeof(int)</B>.
+
+<P>
+
+    Since we know the memory layout for 2 dimensional arrays, we
+can determine that in the expression     <B>multi + row</B>    as used
+above,   <B>multi + row + 1</B>    must increase by value an amount
+equal to that needed to &quot;point to&quot; the next row, which in this
+case would be an amount equal to     <B>COLS * sizeof(int)</B>.
+
+<P>
+
+    That says that if the expression     <B>*(*(multi + row) + col)</B>
+is to be evaluated correctly at run time, the compiler must
+generate code which takes into consideration the value of <B>COLS</B>,
+i.e. the 2nd dimension.  Because of the equivalence of the two
+forms of expression, this is true whether we are using the
+pointer expression as here or the array expression
+<B>multi[row][col]</B>.
+
+<P>
+
+Thus, to evaluate either expression, a total of 5 values must be
+
+known:
+
+<OL>
+
+<LI>The address of the first element of the array, which is
+        returned by the expression  <B>multi</B>, i.e., the name of the
+        array.
+
+<LI>The size of the type of the elements of the array,  in
+        this case <B>sizeof(int)</B>.
+
+<LI>The 2nd dimension of the array
+
+<LI>The specific index value for the first dimension, <B>row</B>
+        in this case.
+
+<LI>The specific index value for the second dimension, <B>col</B>
+        in this case.
+
+</OL>
+
+    Given all of that, consider the problem of designing a
+function to manipulate the element values of a previously
+declared array. For example, one which would set all the elements
+of the array <B>multi</B> to the value 1.
+
+<PRE>
+
+    void set_value(int m_array[][COLS])
+    {
+        int row, col;
+        for (row = 0; row &lt; ROWS; row++)
+        {
+            for (col = 0; col &lt; COLS; col++)
+            {
+                m_array[row][col] = 1;
+            }
+        }
+    }
+
+</PRE>
+
+And to call this function we would then use:
+
+<PRE>
+    set_value(multi);
+</PRE>
+
+ Now, within the function we have used the values #defined by ROWS and 
+COLS that set the limits on the for loops. But, these #defines are just constants 
+as far as the compiler is concerned, i.e. there is nothing to connect them to the 
+array size within the function. <B>row</B> and <B>col</B> are local variables, of course. The 
+formal parameter definition permits the compiler to determine the characteristics 
+associated with the pointer value that will be passed at run time.  We really 
+don’t need the first dimension and, as will be seen later, there are occasions 
+where we would prefer not to define it within the parameter definition, out 
+of habit or consistency, I have not used it here. But, the second dimension 
+must be used as has been shown in the expression for the parameter. The 
+reason is that we need this in the evaluation of <B>m_array[row][col]</B> as has been 
+described. While the parameter defines the data type (<B>int</B> in this case) and the 
+automatic variables for row and column are defined in the for loops, only one 
+value can be passed using a single parameter. In this case, that is the value 
+of <B>multi</B> as noted in the call statement, i.e. the address of the first element, often 
+referred to as a pointer to the array. Thus, the only way we have of informing 
+the compiler of the 2nd dimension is by explicitly including it in the parameter definition.
+<P>
+
+    In fact, in general all dimensions of higher order than one
+are needed when dealing with multi-dimensional arrays.  That is
+if we are talking about 3 dimensional arrays, the 2nd <B>and</B> 3rd
+dimension must be specified in the parameter definition.
+
+<DL>
+
+<DT><Center><A HREF=ch8x.htm>Continue with Pointer Tutorial</A></Center>
+
+</DT></P>
+
+<DT><Center><A Href=pointers.htm>Back to Table of Contents</Center></A><P>
+
+</DL>
+
+</BODY>
+</HTML>

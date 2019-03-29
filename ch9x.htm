@@ -1,0 +1,530 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 9</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 9: Pointers and Dynamic Allocation of Memory</H2>
+
+    There are times when it is convenient to allocate memory at
+run time using <B>malloc()</B>, <B>calloc()</B>, or other allocation functions.
+Using this approach permits postponing the decision on the size
+of the memory block need to store an array, for example, until
+run time.  Or it permits using a section of memory for the
+storage of an array of integers at one point in time, and then
+when that memory is no longer needed it can be freed up for other
+uses, such as the storage of an array of structures.
+
+<P>
+
+    When memory is allocated, the allocating function (such as
+<B>malloc()</B>, <B>calloc()</B>, etc.) returns a pointer.  The type of this
+pointer depends on whether you are using an older K&amp;R compiler or
+the newer ANSI type compiler.  With the older compiler the type
+of the returned pointer is <B>char</B>, with the ANSI compiler it is
+<B>void</B>.
+
+<P>
+
+    If you are using an older compiler, and you want to allocate
+memory for an array  of integers you will have to cast the char
+pointer returned to an integer pointer.  For example, to allocate
+space for 10 integers we might write:
+
+<PRE>
+    int *iptr;
+    iptr = (int *)malloc(10 * sizeof(int));
+    if (iptr == NULL)
+
+    { .. ERROR ROUTINE GOES HERE .. }
+</PRE>
+
+    If you are using an ANSI compliant compiler, <B>malloc()</B> returns
+a <B>void</B> pointer and since a void pointer can be assigned to a
+pointer variable of any object type, the <B>(int *)</B> cast shown above
+is not needed.  The array dimension can be determined at run time
+and is not needed at compile time.  That is, the <B>10</B> above could
+be a variable read in from a data file or keyboard, or calculated
+based on some need, at run time.
+
+<P>
+
+    Because of the equivalence between array and pointer
+notation, once <B>iptr</B> has been assigned as above, one can use the
+array notation.  For example, one could write:
+
+<PRE>
+    int k;
+    for (k = 0; k &lt; 10; k++)
+       iptr[k] = 2;
+</PRE>
+
+to set the values of all elements to 2.
+
+<P>
+
+    Even with a reasonably good understanding of pointers and
+arrays, one place the newcomer to C is likely to stumble at first
+is in the dynamic allocation of multi-dimensional arrays.  In
+general, we would like to be able to access elements of such
+arrays using array notation, not pointer notation, wherever
+possible. Depending on the application we may or may not know
+both dimensions at compile time.  This leads to a variety of ways
+to go about our task.
+
+<P>
+
+    As we have seen, when dynamically allocating a one
+dimensional array its dimension can be determined at run time.
+Now, when using dynamic allocation of higher order arrays, we
+never need to know the first dimension at compile time.  Whether
+we need to know the higher dimensions depends on how we go about
+writing the code.  Here I will discuss various methods of
+dynamically allocating room for 2 dimensional arrays of integers.
+
+<P>
+
+    First we will consider cases where the 2nd dimension is known
+at compile time.
+
+<H3>METHOD 1:</H3>
+
+    One way of dealing with the problem is through the use of the
+<B>typedef</B> keyword.  To allocate a 2 dimensional array of integers
+recall that the following two notations result in the same object
+code being generated:
+
+<PRE>
+
+    multi[row][col] = 1;     *(*(multi + row) + col) = 1;
+
+</PRE>
+
+    It is also true that the following two notations generate the
+same code:
+
+<PRE>
+
+    multi[row]            *(multi + row)
+
+</PRE>
+
+    Since the one on the right must evaluate to a pointer, the
+array notation on the left must also evaluate to a pointer.  In
+fact <B>multi[0]</B> will return a pointer to the first integer in the
+first row, <B>multi[1]</B> a pointer to the first integer of the second
+row, etc.  Actually, <B>multi[n]</B> evaluates to a pointer to that
+array of integers that make up the n-th row of our 2
+dimensional array. That is, <B>multi</B> can be thought of as an array
+of arrays and <B>multi[n]</B> as a pointer to the n-th array of this
+array of arrays.  Here the word <B>pointer</B> is being used
+to represent an address value.  While such usage is common in the
+literature, when reading such statements one must be careful to
+distinguish between the constant address of an array and a
+variable pointer which is a data object in itself.
+
+<P>
+
+Consider now:
+
+<PRE>
+
+--------------- Program 9.1 --------------------------------
+
+/* Program 9.1 from PTRTUT10.HTM  6/13/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define COLS 5
+
+typedef int RowArray[COLS];
+RowArray *rptr;
+
+int main(void)
+{
+    int nrows = 10;
+    int row, col;
+    rptr = malloc(nrows * COLS * sizeof(int));
+    for (row = 0; row &lt; nrows; row++)
+    {
+        for (col = 0; col &lt; COLS; col++)
+        {
+            rptr[row][col] = 17;
+        }
+    }
+
+    return 0;
+}
+------------- End of Prog. 9.1 --------------------------------
+
+</PRE>
+
+    Here I have assumed an ANSI compiler so a cast on the void
+pointer returned by <B>malloc()</B> is not required.  If you are using
+an older K&amp;R compiler you will have to cast using:
+
+<PRE>
+    rptr = (RowArray *)malloc(.... etc.
+</PRE>
+
+    Using this approach,<B> rptr</B> has all the characteristics of an
+array name name, (except that rptr is modifiable),  and array notation may be used throughout the rest of
+the program.  That also means that if you intend to write a
+function to modify the array contents, you must use COLS as a
+part of the formal parameter in that function, just as we did
+when discussing the passing of two dimensional arrays to a
+function.
+
+
+
+<H3>METHOD 2:</H3>
+
+    In the METHOD 1 above, rptr turned out to be a pointer to
+type &quot;one dimensional array of COLS integers&quot;.  It turns out that
+there is syntax which can be used for this type without the need
+of <B>typedef</B>.  If we write:
+
+<PRE>
+
+    int (*xptr)[COLS];
+
+</PRE>
+
+the variable <B>xptr</B> will have all the same characteristics as the
+variable <B>rptr</B> in METHOD 1 above, and we need not use the
+<B>typedef</B> keyword.  Here <B>xptr</B> is a pointer to an array of
+integers and the size of that array is given by the <B>#defined
+COLS</B>.  The parenthesis placement makes the pointer notation
+predominate, even though the array notation has higher
+precedence.  i.e. had we written
+
+<PRE>
+    int *xptr[COLS];
+</PRE>
+
+we would have defined <B>xptr</B> as an array of pointers holding the
+number of pointers equal to that #defined by COLS.  That is not
+the same thing at all.  However, arrays of pointers have their
+use in the dynamic allocation of two dimensional arrays, as will
+be seen in the next 2 methods.
+
+<H3>METHOD 3:</H3>
+
+   Consider the case where we do not know the number of elements
+in each row at compile time, i.e. both the number of rows and
+number of columns must be determined at run time.  One way of
+doing this would be to create an array of pointers to type<B> int</B>
+and then allocate space for each row and point these pointers at
+each row.  Consider:
+
+<PRE>
+
+-------------- Program 9.2 ------------------------------------
+
+/* Program 9.2 from PTRTUT10.HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void)
+{
+    int nrows = 5;     /* Both nrows and ncols could be evaluated */
+    int ncols = 10;    /* or read in at run time */
+    int row;
+    int **rowptr;
+    rowptr = malloc(nrows * sizeof(int *));
+    if (rowptr == NULL)
+    {
+        puts(&quot;\nFailure to allocate room for row pointers.\n&quot;);
+        exit(0);
+    }
+
+    printf(&quot;\n\n\nIndex   Pointer(hex)   Pointer(dec)   Diff.(dec)&quot;);
+
+    for (row = 0; row &lt; nrows; row++)
+    {
+        rowptr[row] = malloc(ncols * sizeof(int));
+        if (rowptr[row] == NULL)
+        {
+            printf(&quot;\nFailure to allocate for row[%d]\n&quot;,row);
+            exit(0);
+        }
+        printf(&quot;\n%d         %p         %d&quot;, row, rowptr[row], rowptr[row]);
+        if (row &gt; 0)
+        printf(&quot;              %d&quot;,(int)(rowptr[row] - rowptr[row-1]));
+    }
+
+    return 0;
+}
+
+--------------- End 9.2 ------------------------------------
+
+</PRE>
+
+    In the above code <B>rowptr</B> is a pointer to pointer to type<B> int</B>.
+In this case it points to the first element of an array of
+pointers to type <B>int</B>.  Consider the number of calls to<B> malloc()</B>:
+
+<PRE>
+
+    To get the array of pointers             1     call
+    To get space for the rows                5     calls
+                                          -----
+                     Total                   6     calls
+</PRE>
+
+    If you choose to use this approach note that while you can
+use the array notation to access individual elements of the
+array, e.g.  <B>rowptr[row][col] = 17;</B>, it does not mean that the
+data in the &quot;two dimensional array&quot; is contiguous in memory.
+
+<P>
+
+    You can, however, use the array notation just as if it were a
+continuous block of memory.  For example, you can write:
+
+<PRE>
+    rowptr[row][col] = 176;
+</PRE>
+
+just as if rowptr were the name of a two dimensional array
+created at compile time.  Of course<B> row</B> and <B>col</B> must be
+within the bounds of the array you have created, just as with an
+array created at compile time.
+
+<P>
+
+    If you want to have a contiguous block of memory
+dedicated to the storage of the elements in the array you can do it as follows:
+
+<H3>METHOD 4:</H3>
+
+    In this method we allocate a block of memory to hold the
+whole array first.  We then create an array of pointers to point
+to each row.  Thus even though the array of pointers is being
+used, the actual array in memory is contiguous.  The code looks
+like this:
+
+<PRE>
+----------------- Program 9.3 -----------------------------------
+
+/* Program 9.3 from PTRTUT10.HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void)
+{
+    int **rptr;
+    int *aptr;
+    int *testptr;
+    int k;
+    int nrows = 5;     /* Both nrows and ncols could be evaluated */
+    int ncols = 8;    /* or read in at run time */
+    int row, col;
+
+    /* we now allocate the memory for the array */
+
+    aptr = malloc(nrows * ncols * sizeof(int));
+    if (aptr == NULL)
+    {
+        puts(&quot;\nFailure to allocate room for the array&quot;);
+        exit(0);
+    }
+
+    /* next we allocate room for the pointers to the rows */
+
+    rptr = malloc(nrows * sizeof(int *));
+    if (rptr == NULL)
+    {
+        puts(&quot;\nFailure to allocate room for pointers&quot;);
+        exit(0);
+    }
+
+    /* and now we 'point' the pointers */
+
+    for (k = 0; k &lt; nrows; k++)
+    {
+        rptr[k] = aptr + (k * ncols);
+    }
+
+    /* Now we illustrate how the row pointers are incremented */
+    printf(&quot;\n\nIllustrating how row pointers are incremented&quot;);
+    printf(&quot;\n\nIndex   Pointer(hex)  Diff.(dec)&quot;);
+
+    for (row = 0; row &lt; nrows; row++)
+    {
+        printf(&quot;\n%d         %p&quot;, row, rptr[row]);
+        if (row &gt; 0)
+        printf(&quot;              %d&quot;,(rptr[row] - rptr[row-1]));
+    }
+    printf(&quot;\n\nAnd now we print out the array\n&quot;);
+    for (row = 0; row &lt; nrows; row++)
+    {
+        for (col = 0; col &lt; ncols; col++)
+        {
+            rptr[row][col] = row + col;
+            printf(&quot;%d &quot;, rptr[row][col]);
+        }
+        putchar('\n');
+    }
+
+    puts(&quot;\n&quot;);
+
+    /* and here we illustrate that we are, in fact, dealing with
+       a 2 dimensional array in a contiguous block of memory. */
+    printf(&quot;And now we demonstrate that they are contiguous in memory\n&quot;);
+
+    testptr = aptr;
+    for (row = 0; row &lt; nrows; row++)
+    {
+        for (col = 0; col &lt; ncols; col++)
+        {
+            printf(&quot;%d &quot;, *(testptr++));
+        }
+        putchar('\n');
+    }
+
+    return 0;
+}
+
+
+
+
+------------- End Program 9.3 -----------------
+
+</PRE>
+
+Consider again, the number of calls to malloc()
+
+<PRE>
+    To get room for the array itself      1      call
+    To get room for the array of ptrs     1      call
+                                        ----
+                         Total            2      calls
+
+</PRE>
+
+    Now, each call to <B>malloc()</B> creates additional space overhead
+since<B> malloc()</B> is generally implemented by the operating system
+forming a linked list which contains data concerning the size of
+the block.  But, more importantly, with large arrays (several
+hundred rows) keeping track of what needs to be freed when the
+time comes can be more cumbersome.  This, combined with the
+contiguousness of the data block that permits initialization to
+all zeroes using <B>memset()</B> would seem to make the second
+alternative the preferred one.
+
+<P>
+
+    As a final example on multidimensional arrays we will
+illustrate the dynamic allocation of a three dimensional array.
+This example will illustrate one more thing to watch when doing
+this kind of allocation.  For reasons cited above we will use the
+approach outlined in alternative two.  Consider the following
+code:
+
+<PRE>
+
+------------------- Program 9.4 -------------------------------------
+
+/* Program 9.4 from PTRTUT10.HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stddef.h&gt;
+
+int X_DIM=16;
+int Y_DIM=5;
+int Z_DIM=3;
+
+int main(void)
+{
+    char *space;
+    char ***Arr3D;
+    int y, z;
+    ptrdiff_t diff;
+
+    /* first we set aside space for the array itself */
+
+    space = malloc(X_DIM * Y_DIM * Z_DIM * sizeof(char));
+
+    /* next we allocate space of an array of pointers, each
+       to eventually point to the first element of a
+       2 dimensional array of pointers to pointers */
+
+    Arr3D = malloc(Z_DIM * sizeof(char **));
+
+    /* and for each of these we assign a pointer to a newly
+       allocated array of pointers to a row */
+
+    for (z = 0; z &lt; Z_DIM; z++)
+    {
+        Arr3D[z] = malloc(Y_DIM * sizeof(char *));
+
+        /* and for each space in this array we put a pointer to
+           the first element of each row in the array space
+           originally allocated */
+
+        for (y = 0; y &lt; Y_DIM; y++)
+        {
+            Arr3D[z][y] = space + (z*(X_DIM * Y_DIM) + y*X_DIM);
+        }
+    }
+
+    /* And, now we check each address in our 3D array to see if
+       the indexing of the Arr3d pointer leads through in a
+       continuous manner */
+
+    for (z = 0; z &lt; Z_DIM; z++)
+    {
+        printf(&quot;Location of array %d is %p\n&quot;, z, *Arr3D[z]);
+        for ( y = 0; y &lt; Y_DIM; y++)
+        {
+            printf(&quot;  Array %d and Row %d starts at %p&quot;, z, y, Arr3D[z][y]);
+            diff = Arr3D[z][y] - space;
+            printf(&quot;    diff = %d  &quot;,diff);
+            printf(&quot; z = %d  y = %d\n&quot;, z, y);
+        }
+    }
+    return 0;
+}
+
+------------------- End of Prog. 9.4 ----------------------------
+
+</PRE>
+
+    If you have followed this tutorial up to this point you
+should have no problem deciphering the above on the basis of the
+comments alone.   There are a couple of points that should be made however.
+Let's start with the line which reads:
+
+
+<PRE>
+    Arr3D[z][y] = space + (z*(X_DIM * Y_DIM) + y*X_DIM);
+</PRE>
+
+    Note that here <B>space</B> is a character pointer, which
+is the same type as <B>Arr3D[z][y]</B>.    It is important that
+when adding an integer, such as that obtained by evaluation of
+the expression  <B>(z*(X_DIM * Y_DIM) + y*X_DIM)</B>, to a
+pointer, the result is a new pointer value.  And when assigning 
+pointer values to pointer variables the data types of the value and 
+variable must match.
+
+
+<DL>
+
+<DT><Center><A HREF=ch10x.htm>Continue with Pointer Tutorial</A></Center>
+
+</DT></P>
+
+<DT><Center><A Href=pointers.htm>Back to Table of Contents</Center></A><P>
+
+</DL>
+</BODY>
+</HTML>
+

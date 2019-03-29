@@ -1,0 +1,231 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 6</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 6: Some more on Strings, and Arrays of Strings </H2>
+<P>
+Well, let's go back to strings for a bit. In the following all
+assignments are to be understood as being global, i.e. made outside
+of any function, including main(). 
+<P>
+We pointed out in an earlier chapter that we could write: 
+<PRE>
+   char my_string[40] = &quot;Ted&quot;;
+</PRE>
+<P>
+which would allocate space for a 40 byte array and put the string
+in the first 4 bytes (three for the characters in the quotes and
+a 4th to handle the terminating <B>'\0'</B>). 
+<P>
+Actually, if all we wanted to do was store the name &quot;Ted&quot;
+we could write: 
+<PRE>
+   char my_name[] = &quot;Ted&quot;;
+</PRE>
+<P>
+and the compiler would count the characters, leave room for the
+nul character and store the total of the four characters in memory
+the location of which would be returned by the array name, in
+this case <B>my_name</B>. 
+<P>
+In some code, instead of the above, you might see: 
+<PRE>
+   char *my_name = &quot;Ted&quot;;
+</PRE>
+<P>
+which is an alternate approach. Is there a difference between
+these? The answer is.. yes. Using the array notation 4 bytes of
+storage in the static memory block are taken up, one for each
+character and one for the terminating nul character. But, in the
+pointer notation the same 4 bytes required, <B>plus</B> N bytes
+to store the pointer variable <B>my_name</B> (where N depends
+on the system but is usually a minimum of 2 bytes and can be 4
+or more). 
+<P>
+In the array notation, <B>my_name</B> is short for <B>&amp;myname[0]</B>
+which is the address of the first element of the array. Since
+the location of the array is fixed during run time, this is a
+constant (not a variable). In the pointer notation <B>my_name</B>
+is a variable. As to which is the <B>better</B> method, that depends
+on what you are going to do within the rest of the program. 
+<P>
+Let's now go one step further and consider what happens if each
+of these declarations are done within a function as opposed to
+globally outside the bounds of any function. 
+<PRE>
+void my_function_A(char *ptr)
+{
+    char a[] = &quot;ABCDE&quot;
+    .
+    .
+} 
+
+
+void my_function_B(char *ptr)
+{
+    char *cp = &quot;FGHIJ&quot;
+    .
+    .
+}
+</PRE>
+<P>
+In the case of <B>my_function_A</B>, the content, or value(s),
+of the array <B>a[]</B> is considered to be the data. The array
+is said to be initialized to the values ABCDE. In the case of
+<B>my_function_B</B>, the value of the pointer <B>cp</B> is considered
+to be the data. The pointer has been initialized to point to the
+string <B>FGHIJ</B>. In both<B> my_function_A</B> and <B>my_function_B</B>
+the definitions are local variables and thus the string <B>ABCDE</B>
+is stored on the stack, as is the value of the pointer <B>cp</B>.
+The string <B>FGHIJ</B> can be stored anywhere. On my system it
+gets stored in the data segment. 
+<P>
+By the way, array initialization of automatic variables as I have
+done in <B>my_function_A</B> was illegal in the older K&amp;R
+C and only &quot;came of age&quot; in the newer ANSI C. A fact
+that may be important when one is considering portability and
+backwards compatibility. 
+<P>
+As long as we are discussing the relationship/differences between
+pointers and arrays, let's move on to multi-dimensional arrays.
+Consider, for example the array: 
+<PRE>
+<FONT SIZE=2>   </FONT><FONT FACE="Courier New"> char multi[5][10];</FONT>
+</PRE>
+<P>
+Just what does this mean? Well, let's consider it in the following
+light. 
+<PRE>
+<FONT SIZE=2>   </FONT><FONT FACE="Courier New"> char <U>multi[5]</U>[10];</FONT>
+</PRE>
+<P>
+Let's take the underlined part to be the &quot;name&quot; of an
+array. Then prepending the <B>char</B> and appending the <B>[10]</B>
+we have an array of 10 characters. But, the name <B>multi[5]</B>
+is itself an array indicating that there are 5 elements each being
+an array of 10 characters. Hence we have an array of 5 arrays
+of 10 characters each.. 
+<P>
+Assume we have filled this two dimensional array with data of
+some kind. In memory, it might look as if it had been formed by
+initializing 5 separate arrays using something like: 
+<PRE>
+<FONT SIZE=2> </FONT><FONT FACE="Courier New">   multi[0] = {'0','1','2','3','4','5','6','7','8','9'}
+    multi[1] = {'a','b','c','d','e','f','g','h','i','j'}
+    multi[2] = {'A','B','C','D','E','F','G','H','I','J'}
+    multi[3] = {'9','8','7','6','5','4','3','2','1','0'}
+    multi[4] = {'J','I','H','G','F','E','D','C','B','A'}
+
+</FONT>
+</PRE>
+<P>
+At the same time, individual elements might be addressable using
+syntax such as: 
+<PRE>
+<FONT SIZE=2>  </FONT><FONT FACE="Courier New">  multi[0][3] = '3'
+    multi[1][7] = 'h'
+    multi[4][0] = 'J'</FONT>
+</PRE>
+<P>
+Since arrays are contiguous in memory, our actual memory block
+for the above should look like: 
+<PRE>
+<FONT SIZE=2>   </FONT><FONT FACE="Courier New"> 0123456789abcdefghijABCDEFGHIJ9876543210JIHGFEDCBA
+    ^
+    |_____ starting at the address &amp;multi[0][0]
+</FONT>
+</PRE>
+<P>
+Note that I did <B>not</B> write <B>multi[0] = &quot;0123456789&quot;</B>.
+Had I done so a terminating <B>'\0'</B> would have been implied
+since whenever double quotes are used a <B>'\0</B>' character
+is appended to the characters contained within those quotes. Had
+that been the case I would have had to set aside room for 11 characters
+per row instead of 10. 
+<P>
+My goal in the above is to illustrate how memory is laid out for
+2 dimensional arrays. That is, this is a 2 dimensional array of
+characters, NOT an array of &quot;strings&quot;. 
+<P>
+Now, the compiler knows how many columns are present in the array
+so it can interpret <B>multi + 1</B> as the address of the 'a'
+in the 2nd row above. That is, it adds 10, the number of columns,
+to get this location. If we were dealing with integers and an
+array with the same dimension the compiler would add <B>10*sizeof(int)</B>
+which, on my machine, would be 20. Thus, the address of the <B>9</B>
+in the 4th row above would be <B>&amp;multi[3][0]</B> or <B>*(multi
++ 3)</B> in pointer notation. To get to the content of the 2nd
+element in the 4th row we add 1 to this address and dereference
+the result as in 
+<PRE>
+<FONT SIZE=2>   </FONT><FONT FACE="Courier New"> *(*(multi + 3) + 1)</FONT>
+</PRE>
+<P>
+With a little thought we can see that: 
+<PRE>
+    *(*(multi + row) + col)    and
+    multi[row][col]            yield the same results.
+</PRE>
+<P>
+The following program illustrates this using integer arrays instead
+of character arrays. 
+<PRE>
+------------------- program 6.1 ----------------------
+
+/* Program 6.1 from PTRTUT10.HTM   6/13/97*/
+
+#include &lt;stdio.h&gt;
+#define ROWS 5
+#define COLS 10
+
+int multi[ROWS][COLS];
+
+int main(void)
+{
+    int row, col;
+    for (row = 0; row &lt; ROWS; row++)
+    {
+        for (col = 0; col &lt; COLS; col++)
+        {
+            multi[row][col] = row*col;
+        }
+    }
+
+    for (row = 0; row &lt; ROWS; row++)
+    {
+        for (col = 0; col &lt; COLS; col++)
+        {
+            printf(&quot;\n%d  &quot;,multi[row][col]);
+            printf(&quot;%d &quot;,*(*(multi + row) + col));
+        }
+    }
+
+    return 0;
+}
+----------------- end of program 6.1 ---------------------<FONT SIZE=2>   </FONT>
+</PRE>
+<P>
+Because of the double de-referencing required in the pointer version,
+the name of a 2 dimensional array is often said to be equivalent
+to a pointer to a pointer. With a three dimensional array we would
+be dealing with an array of arrays of arrays and some might say
+its name would be equivalent to a pointer to a pointer to a pointer.
+However, here we have initially set aside the block of memory
+for the array by defining it using array notation. Hence, we are
+dealing with a constant, not a variable. That is we are talking
+about a fixed address not a variable pointer. The dereferencing
+function used above permits us to access any element in the array
+of arrays without the need of changing the value of that address
+(the address of <B>multi[0][0]</B> as given by the symbol <B>multi</B>).
+<DL>
+<DT><CENTER><A HREF=ch7x.htm>Continue with Pointer Tutorial</A></P></CENTER>
+<DT><CENTER><A Href=pointers.htm>Back to Table of Contents</A></CENTER>
+<DT>
+<DD>
+</DL>
+</BODY>
+</HTML>

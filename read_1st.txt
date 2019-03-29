@@ -1,0 +1,69 @@
+Notes on ptrtut12.zip  Feb. 2002
+This tutorial consists of a collection of HTML files all
+of which can be accessed using a typical Web Browser such
+as Netscape or Internet Explorer.  The files included are:
+
+  Pointers.htm
+  prefacex.htm
+  introx.htm
+  ch1x.htm
+  ch2x.htm
+  ch3x.htm
+  ch4x.htm
+  ch5x.htm
+  ch6x.htm
+  ch7x.htm
+  ch8x.htm
+  ch9x.htm
+  ch10x.htm
+  epilogx.htm
+
+The 'home page' is Pointers.htm.
+
+Put all these files in a separate folder, if they are
+not already there.  Then....
+                                                
+To access these files, load your Browser offline and then
+'File'/Open/ Pointers.htm    
+
+If you don't know how to do this see my notes below.
+
+Ted Jensen
+tjensen@ix.netcom.com
+
+NOTES:  Exactly how one goes about using their Web Browser
+off line depends on which web browser they are using and
+which platform they are on.  While the following method may
+not work for all browsers on all platforms, it should work
+with just about any browser working under Windows95 or 98.
+If you already know how to use your browser off line to read
+an HTML file, ignore what follows as it is not the most efficient
+approach to take, just the easiest to explain!
+
+  To use your browser offline, log on to your Internet Service
+Provider, i.e. go online first.  Once everything is up and running,
+you should have a 'button' on your Win95 or Win98 taskbar
+(very bottom of your screen) with an icon showing a couple of
+terminals and a telephone with the first part of the name
+of your Internet Service Provider.  Left click on this and 
+a small window should pop up which includes a 'Disconnect'
+button.  Click on this to disconnet yourself from your 
+ISP.  You now have the use of your browser offline.  You
+can now use 'File'/'Open' to open any file on disk drive(s)
+which have the .htm or .html file extension.
+
+  To access the tutorial on pointers, use 'File'/'Open' to
+locate the folder you saved the tutorial in and then open
+'Pointers.htm'.
+
+  If you have problems, contact me at 
+
+    tjensen@ix.netcom.com
+
+Ted Jensen
+Redwood City, California
+tjensen@ix.netcom.com
+
+
+
+   

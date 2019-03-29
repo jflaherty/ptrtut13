@@ -1,0 +1,262 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter 1</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+<H2>CHAPTER 1: What is a pointer? </H2>
+<P>
+One of those things beginners in C find difficult is the concept
+of pointers. The purpose of this tutorial is to provide an introduction
+to pointers and their use to these beginners. 
+<P>
+I have found that often the main reason beginners have a problem
+with pointers is that they have a weak or minimal feeling for
+variables, (as they are used in C). Thus we start with a discussion
+of C variables in general. 
+<P>
+A variable in a program is something with a name, the value of
+which can vary. The way the compiler and linker handles this is
+that it assigns a specific block of memory within the computer
+to hold the value of that variable. The size of that block depends
+on the range over which the variable is allowed to vary. For example,
+on 32 bit PC's the size of an integer variable is 4 bytes. On older 16 bit PCs integers were 2 bytes.&nbsp;
+In C the size of a variable type such
+as an integer need not be the same on all types of machines.&nbsp; Further more
+there is more than one type of integer variable in C.&nbsp; We have integers,
+long integers and short integers which you can read up on in any basic text on
+C.&nbsp; This document
+assumes the use of a 32 bit system with 4 byte integers.<P>If you want to know
+the size of the various types of integers on your system, running the following
+code will give you that information.
+<p>#include &lt;stdio.h&gt;</p>
+<p>int main()<br>
+{<br>
+printf(&quot;size of a short is %d\n&quot;, sizeof(short));<br>
+printf(&quot;size of a int is %d\n&quot;, sizeof(int));<br>
+printf(&quot;size of a long is %d\n&quot;, sizeof(long));<br>
+}</p>
+<P>
+When we declare a variable we inform the compiler of two things,
+the name of the variable and the type of the variable. For example,
+we declare a variable of type integer with the name<B> k</B> by
+writing: 
+<PRE>
+    int k; 
+</PRE>
+<P>
+On seeing the &quot;int&quot; part of this statement the compiler
+sets aside 4 bytes of memory (on a PC) to hold the value of the
+integer. It also sets up a symbol table. In that table it adds
+the symbol<B> k</B> and the relative address in memory where those 4
+bytes were set aside. 
+<P>
+Thus, later if we write: 
+<PRE>
+    k = 2; 
+</PRE>
+<P>
+we expect that, at run time when this statement is executed, the
+value 2 will be placed in that memory location reserved for the
+storage of the value of <B>k</B>. In C we refer to a variable
+such as the integer <B>k</B> as an &quot;object&quot;.
+<P>
+In a sense there are two &quot;values&quot; associated with the
+object <B>k</B>. One is the value of the integer stored there
+(2 in the above example) and the other the &quot;value&quot; of
+the memory location, i.e., the address of <B>k</B>. Some texts
+refer to these two values with the nomenclature <I><B>rvalue</B></I>
+(right value, pronounced &quot;are value&quot;) and<I><B> lvalue</B></I>
+(left value, pronounced &quot;el value&quot;) respectively. 
+<P>
+In some languages, the lvalue is the value permitted on the left
+side of the assignment operator '=' (i.e. the address where the
+result of evaluation of the right side ends up). The rvalue is
+that which is on the right side of the assignment statement, the
+<B>2</B> above. Rvalues cannot be used on the left side of the
+assignment statement. Thus: <B>2 = k</B>; is illegal. 
+<P>
+Actually, the above definition of &quot;lvalue&quot; is somewhat
+modified for C. According to K&amp;R II (page 197): [1] 
+<BLOCKQUOTE>
+&quot;An <I><B>object</B></I> is a named region of storage; an
+<I><B>lvalue</B></I> is an expression referring to an object.&quot;
+</BLOCKQUOTE>
+<P>
+However, at this point, the definition originally cited above
+is sufficient. As we become more familiar with pointers we will
+go into more detail on this. 
+<P>
+Okay, now consider: 
+<PRE>
+   int j, k; 
+
+    k = 2; 
+    j = 7;    &lt;-- line 1 
+    k = j;    &lt;-- line 2 
+</PRE>
+<P>
+In the above, the compiler interprets the <B>j</B> in line 1 as
+the address of the variable <B>j</B> (its lvalue) and creates
+code to copy the value 7 to that address. In line 2, however,
+the <B>j</B> is interpreted as its rvalue (since it is on the
+right hand side of the assignment operator '='). That is, here
+the <B>j</B> refers to the value <I><B>stored</B></I> at the memory
+location set aside for <B>j</B>, in this case 7. So, the 7 is
+copied to the address designated by the lvalue of<B> k</B>. 
+<P>
+In all of these examples, we are using 4 byte integers so all copying of rvalues
+from one storage location to the other is done by copying 4 bytes. Had we been using
+two byte integers, we would
+be copying 2 bytes. 
+<P>
+Now, let's say that we have a reason for wanting a variable designed
+to hold an lvalue (an address). The size required to hold such
+a value depends on the system. On older desk top computers with
+64K of memory total, the address of any point in memory can be
+contained in 2 bytes. Computers with more memory would require
+more bytes to hold an address.&nbsp; The actual size required is not too
+important so long as we have a way of informing the compiler that
+what we want to store is an address. 
+<P>
+Such a variable is called a <I><B>pointer variable</B></I> (for
+reasons which hopefully will become clearer a little later). In
+C when we define a pointer variable we do so by preceding its
+name with an asterisk. In C we also give our pointer a type which,
+in this case, refers to the type of data stored at the address
+we will be storing in our pointer. For example, consider the variable
+declaration: 
+<PRE>
+   int *ptr;
+</PRE>
+<P>
+<B>ptr</B> is the name of our variable (just as <B>k</B> was the
+name of our integer variable). The '*' informs the compiler that
+we want a pointer variable, i.e. to set aside however many bytes
+is required to store an address in memory. The <B>int</B> says
+that we intend to use our pointer variable to store the address
+of an integer. Such a pointer is said to &quot;point to&quot;
+an integer. However, note that when we wrote <B>int k;</B> we
+did not give <B>k</B> a value. If this definition is made outside
+of any function ANSI compliant compilers will initialize it to
+zero. Similarly, <B>ptr</B> has no value, that is we haven't stored
+an address in it in the above declaration. In this case, again
+if the declaration is outside of any function, it is initialized
+to a value guaranteed in such a way that it is guaranteed to not
+point to any C object or function. A pointer initialized in this
+manner is called a &quot;null&quot; pointer. 
+<P>
+The actual bit pattern used for a null pointer may or may not
+evaluate to zero since it depends on the specific system on which
+the code is developed. To make the source code compatible between
+various compilers on various systems, a macro is used to represent
+a null pointer. That macro goes under the name NULL. Thus, setting
+the value of a pointer using the NULL macro, as with an assignment
+statement such as ptr = NULL, guarantees that the pointer has
+become a null pointer. Similarly, just as one can test for an
+integer value of zero, as in <B>if(k == 0)</B>, we can test for
+a null pointer using <B>if (ptr == NULL)</B>. 
+<P>
+But, back to using our new variable<B> ptr</B>. Suppose now that
+we want to store in <B>ptr</B> the address of our integer variable
+<B>k</B>. To do this we use the unary <B>&amp;</B> operator and
+write: 
+<PRE>
+    ptr = &amp;k; 
+</PRE>
+<P>
+What the <B>&amp;</B> operator does is retrieve the lvalue (address)
+of <B>k</B>, even though <B>k</B> is on the right hand side of
+the assignment operator '=', and copies that to the contents of
+our pointer ptr. Now, ptr is said to &quot;point to&quot; <B>k</B>.
+Bear with us now, there is only one more operator we need to discuss.
+<P>
+The &quot;dereferencing operator&quot; is the asterisk and it
+is used as follows: 
+<PRE>
+    *ptr = 7; 
+</PRE>
+<P>
+will copy 7 to the address pointed to by <B>ptr</B>. Thus if <B>ptr</B>
+&quot;points to&quot; (contains the address of) <B>k</B>, the
+above statement will set the value of <B>k</B> to 7. That is,
+when we use the '*' this way we are referring to the value of
+that which ptr is pointing to, not the value of the pointer itself.
+<P>
+Similarly, we could write: 
+<PRE>
+ printf(&quot;%d\n&quot;,*ptr); 
+</PRE>
+<P>
+to print to the screen the integer value stored at the address
+pointed to by <B>ptr</B>;. 
+<P>
+One way to see how all this stuff fits together would be to run
+the following program and then review the code and the output
+carefully. 
+<PRE>
+------------ Program 1.1 --------------------------------- 
+
+/* Program 1.1 from PTRTUT10.TXT   6/10/97 */
+
+#include &lt;stdio.h&gt;
+
+int j, k;
+int *ptr;
+
+int main(void)
+{
+    j = 1;
+    k = 2;
+    ptr = &amp;k;
+    printf(&quot;\n&quot;);
+    printf(&quot;j has the value %d and is stored at %p\n&quot;, j, (void *)&amp;j);
+    printf(&quot;k has the value %d and is stored at %p\n&quot;, k, (void *)&amp;k);
+    printf(&quot;ptr has the value %p and is stored at %p\n&quot;, ptr, (void *)&amp;ptr);
+    printf(&quot;The value of the integer pointed to by ptr is %d\n&quot;, *ptr);
+
+    return 0;
+}
+</PRE>
+<P>
+Note: We have yet to discuss those aspects of C which require
+the use of the <B>(void *)</B> expression used here. For now,
+include it in your test code. We'll explain the reason behind
+this expression later. 
+<HR>
+<P>
+To review: 
+<UL>
+<LI>A variable is declared by giving it a type and a name (e.g.
+<B>int k;</B>) 
+<LI>A pointer variable is declared by giving it a type and a name
+(e.g. <B>int *ptr</B>) where the asterisk tells the compiler that
+the variable named <B>ptr</B> is a pointer variable and the type
+tells the compiler what type the pointer is to point to (integer
+in this case). 
+<LI>Once a variable is declared, we can get its address by preceding
+its name with the unary<B> &amp;</B> operator, as in <B>&amp;k</B>.
+<LI>We can &quot;dereference&quot; a pointer, i.e. refer to the
+value of that which it points to, by using the unary '*' operator
+as in <B>*ptr</B>. 
+<LI>An &quot;lvalue&quot; of a variable is the value of its address,
+i.e. where it is stored in memory. The &quot;rvalue&quot; of a
+variable is the value stored in that variable (at that address).
+</UL>
+<H3>References for Chapter 1: </H3>
+<OL>
+<LI>&quot;The C Programming Language&quot; 2nd Edition<BR>
+B. Kernighan and D. Ritchie <BR>
+Prentice Hall <BR>
+ISBN 0-13-110362-8 <BR>
+</OL>
+<DL>
+<DT><CENTER><a HREF="ch2x.htm" target="_top">Continue with Pointer Tutorial</a></CENTER>
+<DT><CENTER><A Href=pointers.htm>Back to Table of Contents</A></CENTER>
+<DT>
+<DD>
+</DL>
+</BODY>
+</HTML>

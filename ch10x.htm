@@ -1,0 +1,691 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+<TITLE>Chapter10</TITLE>
+<META name="Robots" content="NONE">
+<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
+</HEAD>
+<BODY>
+
+<H2>CHAPTER 10: Pointers to Functions</H2>
+
+
+
+    Up to this point we have been discussing pointers to data
+objects.  C also permits the declaration of pointers to
+functions.  Pointers to functions have a variety of uses and some
+of them will be discussed here.
+
+<P>
+
+    Consider the following real problem.  You want to write a
+function that is capable of sorting virtually any collection of
+data that can be stored in an array.  This might be an array of
+strings, or integers, or floats, or even structures.  The sorting
+algorithm can be the same for all.  For example, it could be a
+simple bubble sort algorithm, or the more complex shell or quick
+sort algorithm.  We'll use a simple bubble sort for demonstration
+purposes.
+
+<P>
+
+    Sedgewick [1] has described the bubble sort using C code by
+setting up a function which when passed a pointer to the array
+would sort it.  If we call that function<B> bubble()</B>, a sort program
+is described by bubble_1.c, which follows:
+
+<PRE>
+
+/*-------------------- bubble_1.c --------------------*/
+
+/* Program bubble_1.c from PTRTUT10.HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+
+int arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+
+void bubble(int a[], int N);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    bubble(arr,10);
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    return 0;
+}
+
+void bubble(int a[], int N)
+{
+    int i, j, t;
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            if (a[j-1] &gt; a[j])
+            {
+                t = a[j-1];
+                a[j-1] = a[j];
+                a[j] = t;
+            }
+        }
+    }
+}
+
+
+
+/*---------------------- end bubble_1.c -----------------------*/
+
+</PRE>
+
+The bubble sort is one of the simpler sorts.  The algorithm scans
+the array from the second to the last element comparing each
+element with the one which precedes it. If the one that precedes
+it is larger than the current element, the two are swapped so the
+larger one is closer to the end of the array.  On the first pass,
+this results in the largest element ending up at the end of the
+array.  The array is now limited to all elements except the last
+and the process repeated.  This puts the next largest element at
+a point preceding the largest element.  The process is repeated
+for a number of times equal to the number of elements minus 1.
+The end result is a sorted array.
+
+<P>
+
+     Here our function is designed to sort an array of integers.
+Thus in line 1 we are comparing integers and in lines 2 through 4
+we are using temporary integer storage to store integers.  What
+we want to do now is see if we can convert this code so we can
+use any data type, i.e. not be restricted to integers.
+
+<P>
+    At the same time we don't want to have to analyze our
+algorithm and the code associated with it each time we use it.
+We start by removing the comparison from within the function
+<B>bubble()</B> so as to make it relatively easy to modify the
+comparison function without having to re-write portions related
+to the actual algorithm.  This results in bubble_2.c:
+
+<PRE>
+
+/*---------------------- bubble_2.c -------------------------*/
+
+/* Program bubble_2.c from PTRTUT10.HTM   6/13/97 */
+
+   /* Separating the comparison function */
+
+#include &lt;stdio.h&gt;
+
+int arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+
+void bubble(int a[], int N);
+int compare(int m, int n);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    bubble(arr,10);
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    return 0;
+}
+
+void bubble(int a[], int N)
+
+{
+    int i, j, t;
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            if (compare(a[j-1], a[j]))
+            {
+                t = a[j-1];
+                a[j-1] = a[j];
+                a[j] = t;
+            }
+        }
+    }
+}
+
+int compare(int m, int n)
+{
+    return (m &gt; n);
+}
+/*--------------------- end of bubble_2.c -----------------------*/
+</PRE>
+
+If our goal is to make our sort routine data type independent,
+one way of doing this is to use pointers to type void to point to
+the data instead of using the integer data type.  As a start in
+that direction let's modify a few things in the above so that
+pointers can be used.  To begin with, we'll stick with pointers
+to type integer.
+
+<PRE>
+
+/*----------------------- bubble_3.c -------------------------*/
+
+/* Program bubble_3.c from PTRTUT10.HTM    6/13/97 */
+
+#include &lt;stdio.h&gt;
+
+int arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+
+void bubble(int *p, int N);
+int compare(int *m, int *n);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    bubble(arr,10);
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    return 0;
+}
+
+void bubble(int *p, int N)
+{
+    int i, j, t;
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            if (compare(&amp;p[j-1], &amp;p[j]))
+            {
+                t = p[j-1];
+                p[j-1] = p[j];
+                p[j] = t;
+            }
+        }
+    }
+}
+
+int compare(int *m, int *n)
+{
+    return (*m &gt; *n);
+}
+
+/*------------------ end of bubble3.c -------------------------*/
+
+</PRE>
+
+Note the changes. We are now passing a pointer to an integer (or
+array of integers) to <B>bubble()</B>.  And from within bubble we are
+passing pointers to the elements of the array that we want to
+compare to our comparison function.  And, of course we are
+dereferencing these pointer in our <B>compare()</B> function in order to
+make the actual comparison.  Our next step will be to convert the
+pointers in <B>bubble()</B> to pointers to type void so that that
+function will become more type insensitive.  This is shown in
+bubble_4.
+
+<PRE>
+
+/*------------------ bubble_4.c ----------------------------*/
+
+/* Program bubble_4.c from PTRTUT10,HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+
+int arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+
+void bubble(int *p, int N);
+int compare(void *m, void *n);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    bubble(arr,10);
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    return 0;
+}
+
+void bubble(int *p, int N)
+{
+    int i, j, t;
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            if (compare((void *)&amp;p[j-1], (void *)&amp;p[j]))
+            {
+                t = p[j-1];
+                p[j-1] = p[j];
+                p[j] = t;
+            }
+        }
+    }
+}
+
+int compare(void *m, void *n)
+{
+    int *m1, *n1;
+    m1 = (int *)m;
+    n1 = (int *)n;
+    return (*m1 &gt; *n1);
+}
+
+/*------------------ end of bubble_4.c ---------------------*/
+
+</PRE>
+
+Note that, in doing this, in <B>compare()</B> we had to introduce the
+casting of the void pointer types passed to the actual type being
+sorted.  But, as we'll see later that's okay.  And since what is
+being passed to <B>bubble()</B> is still a pointer to an array of
+integers, we had to cast these pointers to void pointers when we
+passed them as parameters in our call to <B>compare()</B>.
+
+<P>
+
+We now address the problem of what we pass to <B>bubble()</B>.  We want
+to make the first parameter of that function a void pointer also.
+But, that means that within <B>bubble()</B> we need to do something
+about the variable <B>t</B>, which is currently an integer.  Also, where
+we use <B>t = p[j-1];</B>  the type of <B>p[j-1]</B> needs to be known in order
+to know how many bytes to copy to the variable <B>t</B> (or whatever we
+replace<B> t</B> with).
+
+<P>
+
+Currently, in bubble_4.c, knowledge within <B>bubble()</B> as to the
+type of the data being sorted (and hence the size of each
+individual element) is obtained from the fact that the first
+parameter is a pointer to type integer.  If we are going to be
+able to use <B>bubble()</B> to sort any type of data, we need to make
+that pointer a pointer to type<B> void</B>.  But, in doing so we are
+going to lose information concerning the size of individual
+elements within the array.  So, in bubble_5.c we will add a
+separate parameter to handle this size information.
+
+<P>
+
+These changes, from bubble4.c to bubble5.c are, perhaps, a bit
+more extensive than those we have made in the past.  So, compare
+the two modules carefully for differences.
+
+<PRE>
+
+/*---------------------- bubble5.c ---------------------------*/
+
+/* Program bubble_5.c from PTRTUT10.HTM    6/13/97 */
+
+
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+long arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+
+void bubble(void *p, size_t width, int N);
+int compare(void *m, void *n);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%d &quot;, arr[i]);
+    }
+    bubble(arr, sizeof(long), 10);
+    putchar('\n');
+
+    for (i = 0; i &lt; 10; i++)
+    {
+        printf(&quot;%ld &quot;, arr[i]);
+    }
+
+    return 0;
+}
+
+void bubble(void *p, size_t width, int N)
+{
+    int i, j;
+    unsigned char buf[4];
+    unsigned char *bp = p;
+
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            if (compare((void *)(bp + width*(j-1)),
+                        (void *)(bp + j*width)))  /* 1 */
+            {
+/*              t = p[j-1];   */
+                memcpy(buf, bp + width*(j-1), width);
+/*              p[j-1] = p[j];   */
+                memcpy(bp + width*(j-1), bp + j*width , width);
+/*              p[j] = t;   */
+                memcpy(bp + j*width, buf, width);
+            }
+        }
+    }
+}
+
+int compare(void *m, void *n)
+{
+    long *m1, *n1;
+    m1 = (long *)m;
+    n1 = (long *)n;
+    return (*m1 &gt; *n1);
+}
+
+/*--------------------- end of bubble5.c ---------------------*/
+
+</PRE>
+
+Note that I have changed the data type of the array from<B> int</B> to
+<B>long</B> to illustrate the changes needed in the <B>compare()</B> function.
+Within<B> bubble()</B> I've done away with the variable <B>t</B> (which we would
+have had to change from type <B>int</B> to type <B>long</B>).  I have added a
+buffer of size 4 unsigned characters, which is the size needed to
+hold a long (this will change again in future modifications to
+this code).  The unsigned character pointer <B>*bp</B> is used to point
+to the base of the array to be sorted, i.e. to the first element
+of that array.
+
+<P>
+
+We also had to modify what we passed to <B>compare()</B>, and how we do
+the swapping of elements that the comparison indicates need
+swapping.  Use of <B>memcpy()</B> and pointer notation instead of array
+notation work towards this reduction in type sensitivity.
+
+<P>
+
+Again, making a careful comparison of bubble5.c with bubble4.c
+can result in improved understanding of what is happening and
+why.
+
+<P>
+
+We move now to bubble6.c where we use the same function bubble()
+that we used in bubble5.c to sort strings instead of long
+integers.  Of course we have to change the comparison function
+since the means by which strings are compared is different from
+that by which long integers are compared.  And,in bubble6.c we
+have deleted the lines within <B>bubble()</B> that were commented out in
+bubble5.c.
+
+<PRE>
+/*--------------------- bubble6.c ---------------------*/
+/* Program bubble_6.c from PTRTUT10.HTM   6/13/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#define MAX_BUF 256
+
+char arr2[5][20] = {  &quot;Mickey Mouse&quot;,
+
+                      &quot;Donald Duck&quot;,
+
+                      &quot;Minnie Mouse&quot;,
+
+                      &quot;Goofy&quot;,
+
+                      &quot;Ted Jensen&quot; };
+
+void bubble(void *p, int width, int N);
+int compare(void *m, void *n);
+
+int main(void)
+{
+    int i;
+    putchar('\n');
+
+    for (i = 0; i &lt; 5; i++)
+    {
+        printf(&quot;%s\n&quot;, arr2[i]);
+    }
+    bubble(arr2, 20, 5);
+    putchar('\n\n');
+
+    for (i = 0; i &lt; 5; i++)
+    {
+        printf(&quot;%s\n&quot;, arr2[i]);
+    }
+    return 0;
+}
+
+void bubble(void *p, int width, int N)
+{
+    int i, j, k;
+    unsigned char buf[MAX_BUF];
+    unsigned char *bp = p;
+
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+          k = compare((void *)(bp + width*(j-1)), (void *)(bp + j*width));
+          if (k &gt; 0)
+            {
+             memcpy(buf, bp + width*(j-1), width);
+             memcpy(bp + width*(j-1), bp + j*width , width);
+             memcpy(bp + j*width, buf, width);
+            }
+        }
+    }
+}
+
+int compare(void *m, void *n)
+{
+    char *m1 = m;
+    char *n1 = n;
+    return (strcmp(m1,n1));
+}
+
+/*------------------- end of bubble6.c ---------------------*/
+
+</PRE>
+
+But, the fact that <B>bubble()</B> was unchanged from that used in
+bubble5.c indicates that that function is capable of sorting a
+wide variety of data types.  What is left to do is to pass to
+<B>bubble()</B> the name of the comparison function we want to use so
+that it can be truly universal.  Just as the name of an array is
+the address of the first element of the array in the data
+segment, the name of a function decays into the address of that
+function in the code segment.  Thus we need to use a pointer to a
+function.  In this case the comparison function.
+
+<P>
+
+Pointers to functions must match the functions pointed to in the
+number and types of the parameters and the type of the return
+value.  In our case, we declare our function pointer as:
+
+<PRE>
+   int (*fptr)(const void *p1, const void *p2);
+</PRE>
+
+Note that were we to write:
+
+<PRE>
+    int *fptr(const void *p1, const void *p2);
+</PRE>
+
+we would have a function prototype for a function which returned
+a pointer to type <B>int</B>.  That is because in C the parenthesis ()
+operator have a higher precedence than the pointer * operator.
+By putting the parenthesis around the string (*fptr) we indicate
+that we are declaring a function pointer.
+
+<P>
+
+We now modify our declaration of<B> bubble()</B> by adding, as its 4th
+parameter, a function pointer of the proper type.  It's function
+prototype becomes:
+
+<PRE>
+    void bubble(void *p, int width, int N,
+                int(*fptr)(const void *, const void *));
+</PRE>
+
+When we call the <B>bubble()</B>, we insert the name of the comparison
+function that we want to use.  bubble7.c illustrate how this
+approach permits the use of the same <B>bubble()</B> function for
+sorting different types of data.
+
+<PRE>
+
+/*------------------- bubble7.c ------------------*/
+
+/* Program bubble_7.c from PTRTUT10.HTM  6/10/97 */
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#define MAX_BUF 256
+
+long arr[10] = { 3,6,1,2,3,8,4,1,7,2};
+char arr2[5][20] = {  &quot;Mickey Mouse&quot;,
+                      &quot;Donald Duck&quot;,
+                      &quot;Minnie Mouse&quot;,
+                      &quot;Goofy&quot;,
+                      &quot;Ted Jensen&quot; };
+
+void bubble(void *p, int width, int N,
+            int(*fptr)(const void *, const void *));
+int compare_string(const void *m, const void *n);
+int compare_long(const void *m, const void *n);
+
+int main(void)
+{
+    int i;
+    puts(&quot;\nBefore Sorting:\n&quot;);
+
+    for (i = 0; i &lt; 10; i++)               /* show the long ints */
+    {
+        printf(&quot;%ld &quot;,arr[i]);
+    }
+    puts(&quot;\n&quot;);
+
+    for (i = 0; i &lt; 5; i++)                  /* show the strings */
+    {
+        printf(&quot;%s\n&quot;, arr2[i]);
+    }
+    bubble(arr, 4, 10, compare_long);          /* sort the longs */
+    bubble(arr2, 20, 5, compare_string);     /* sort the strings */
+    puts(&quot;\n\nAfter Sorting:\n&quot;);
+
+    for (i = 0; i &lt; 10; i++)             /* show the sorted longs */
+    {
+        printf(&quot;%d &quot;,arr[i]);
+    }
+    puts(&quot;\n&quot;);
+
+    for (i = 0; i &lt; 5; i++)            /* show the sorted strings */
+    {
+        printf(&quot;%s\n&quot;, arr2[i]);
+    }
+    return 0;
+}
+
+void bubble(void *p, int width, int N,
+            int(*fptr)(const void *, const void *))
+{
+    int i, j, k;
+    unsigned char buf[MAX_BUF];
+    unsigned char *bp = p;
+
+    for (i = N-1; i &gt;= 0; i--)
+    {
+        for (j = 1; j &lt;= i; j++)
+        {
+            k = fptr((void *)(bp + width*(j-1)), (void *)(bp + j*width));
+            if (k &gt; 0)
+            {
+                memcpy(buf, bp + width*(j-1), width);
+                memcpy(bp + width*(j-1), bp + j*width , width);
+                memcpy(bp + j*width, buf, width);
+            }
+        }
+    }
+}
+
+int compare_string(const void *m, const void *n)
+{
+    char *m1 = (char *)m;
+    char *n1 = (char *)n;
+    return (strcmp(m1,n1));
+}
+
+int compare_long(const void *m, const void *n)
+{
+    long *m1, *n1;
+    m1 = (long *)m;
+    n1 = (long *)n;
+    return (*m1 &gt; *n1);
+}
+
+/*----------------- end of bubble7.c -----------------*/
+
+</PRE>
+
+<H3>References for Chapter 10:</H3>
+
+<OL>
+
+<LI>&quot;Algorithms in C&quot;<BR>
+       Robert Sedgewick<BR>
+       Addison-Wesley<BR>
+       ISBN 0-201-51425-7<BR>
+
+</OL>
+
+<DL>
+
+<DT><Center><A HREF=epilogx.htm>Continue with Pointer Tutorial</A></Center>
+
+</DT></P>
+
+<DT><Center><A Href=pointers.htm>Back to Table of Contents</Center></A><P>
+
+</DT>
+</BODY>
+</HTML>
+

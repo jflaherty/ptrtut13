@@ -3,7 +3,6 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
 <TITLE>Chapter 1</TITLE>
 <META name="Robots" content="NONE">
-<META NAME="GENERATOR" CONTENT="Microsoft FrontPage 4.0">
 </HEAD>
 <BODY>
 <H2>CHAPTER 1: What is a pointer? </H2>
@@ -31,13 +30,17 @@ C.&nbsp; This document
 assumes the use of a 32 bit system with 4 byte integers.<P>If you want to know
 the size of the various types of integers on your system, running the following
 code will give you that information.
-<p>#include &lt;stdio.h&gt;</p>
-<p>int main()<br>
-{<br>
-printf(&quot;size of a short is %d\n&quot;, sizeof(short));<br>
-printf(&quot;size of a int is %d\n&quot;, sizeof(int));<br>
-printf(&quot;size of a long is %d\n&quot;, sizeof(long));<br>
-}</p>
+<PRE><CODE>
+    #include &lt;stdio.h&gt;
+    
+    int main()
+    {
+        printf(&quot;size of a short is %d\n&quot;, sizeof(short));<br>
+        printf(&quot;size of a int is %d\n&quot;, sizeof(int));<br>
+        printf(&quot;size of a long is %d\n&quot;, sizeof(long));<br>
+    }
+
+</CODE></PRE>
 <P>
 When we declare a variable we inform the compiler of two things,
 the name of the variable and the type of the variable. For example,
@@ -253,7 +256,7 @@ Prentice Hall <BR>
 ISBN 0-13-110362-8 <BR>
 </OL>
 <DL>
-<DT><CENTER><a HREF="ch2x.htm" target="_top">Continue with Pointer Tutorial</a></CENTER>
+<DT><CENTER><a HREF="ch2x.htm">Chapter 2: Pointer Types and Arrays.</a></CENTER>
 <DT><CENTER><A Href=pointers.htm>Back to Table of Contents</A></CENTER>
 <DT>
 <DD>

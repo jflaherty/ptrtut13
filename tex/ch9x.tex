@@ -1,0 +1,265 @@
+\hypertarget{chapter-9-pointers-and-dynamic-allocation-of-memory}{%
+\subsection{CHAPTER 9: Pointers and Dynamic Allocation of
+Memory}\label{chapter-9-pointers-and-dynamic-allocation-of-memory}}
+
+There are times when it is convenient to allocate memory at run time
+using \textbf{malloc()}, \textbf{calloc()}, or other allocation
+functions. Using this approach permits postponing the decision on the
+size of the memory block need to store an array, for example, until run
+time. Or it permits using a section of memory for the storage of an
+array of integers at one point in time, and then when that memory is no
+longer needed it can be freed up for other uses, such as the storage of
+an array of structures.
+
+When memory is allocated, the allocating function (such as
+\textbf{malloc()}, \textbf{calloc()}, etc.) returns a pointer. The type
+of this pointer depends on whether you are using an older K\&R compiler
+or the newer ANSI type compiler. With the older compiler the type of the
+returned pointer is \textbf{char}, with the ANSI compiler it is
+\textbf{void}.
+
+If you are using an older compiler, and you want to allocate memory for
+an array of integers you will have to cast the char pointer returned to
+an integer pointer. For example, to allocate space for 10 integers we
+might write:
+
+\begin{minted}{c}
+    int *iptr;
+    iptr = (int *)malloc(10 * sizeof(int));
+    if (iptr == NULL)
+
+    { .. ERROR ROUTINE GOES HERE .. }
+\end{minted}
+
+If you are using an ANSI compliant compiler, \textbf{malloc()} returns a
+\textbf{void} pointer and since a void pointer can be assigned to a
+pointer variable of any object type, the \textbf{(int *)} cast shown
+above is not needed. The array dimension can be determined at run time
+and is not needed at compile time. That is, the \textbf{10} above could
+be a variable read in from a data file or keyboard, or calculated based
+on some need, at run time.
+
+Because of the equivalence between array and pointer notation, once
+\textbf{iptr} has been assigned as above, one can use the array
+notation. For example, one could write:
+
+\begin{minted}{c}
+    int k;
+    for (k = 0; k < 10; k++)
+       iptr[k] = 2;
+\end{minted}
+
+to set the values of all elements to 2.
+
+Even with a reasonably good understanding of pointers and arrays, one
+place the newcomer to C is likely to stumble at first is in the dynamic
+allocation of multi-dimensional arrays. In general, we would like to be
+able to access elements of such arrays using array notation, not pointer
+notation, wherever possible. Depending on the application we may or may
+not know both dimensions at compile time. This leads to a variety of
+ways to go about our task.
+
+As we have seen, when dynamically allocating a one dimensional array its
+dimension can be determined at run time. Now, when using dynamic
+allocation of higher order arrays, we never need to know the first
+dimension at compile time. Whether we need to know the higher dimensions
+depends on how we go about writing the code. Here I will discuss various
+methods of dynamically allocating room for 2 dimensional arrays of
+integers.
+
+First we will consider cases where the 2nd dimension is known at compile
+time.
+
+\hypertarget{method-1}{%
+\subsubsection{METHOD 1:}\label{method-1}}
+
+One way of dealing with the problem is through the use of the
+\textbf{typedef} keyword. To allocate a 2 dimensional array of integers
+recall that the following two notations result in the same object code
+being generated:
+
+\begin{minted}{c}
+
+    multi[row][col] = 1;     *(*(multi + row) + col) = 1;
+\end{minted}
+
+It is also true that the following two notations generate the same code:
+
+\begin{minted}{c}
+
+    multi[row]            *(multi + row)
+\end{minted}
+
+Since the one on the right must evaluate to a pointer, the array
+notation on the left must also evaluate to a pointer. In fact
+\textbf{multi{[}0{]}} will return a pointer to the first integer in the
+first row, \textbf{multi{[}1{]}} a pointer to the first integer of the
+second row, etc. Actually, \textbf{multi{[}n{]}} evaluates to a pointer
+to that array of integers that make up the n-th row of our 2 dimensional
+array. That is, \textbf{multi} can be thought of as an array of arrays
+and \textbf{multi{[}n{]}} as a pointer to the n-th array of this array
+of arrays. Here the word \textbf{pointer} is being used to represent an
+address value. While such usage is common in the literature, when
+reading such statements one must be careful to distinguish between the
+constant address of an array and a variable pointer which is a data
+object in itself.
+
+Consider now:
+
+-----------  Program 9.1  -----------------------------------
+\inputminted{c}{../src/ch9-1.c}
+--------- end program 9.1 -----------------------------------
+
+Here I have assumed an ANSI compiler so a cast on the void pointer
+returned by \textbf{malloc()} is not required. If you are using an older
+K\&R compiler you will have to cast using:
+
+\begin{minted}{c}
+    rptr = (RowArray *)malloc(.... etc.
+\end{minted}
+
+Using this approach, \textbf{rptr} has all the characteristics of an
+array name name, (except that rptr is modifiable), and array notation
+may be used throughout the rest of the program. That also means that if
+you intend to write a function to modify the array contents, you must
+use COLS as a part of the formal parameter in that function, just as we
+did when discussing the passing of two dimensional arrays to a function.
+
+\hypertarget{method-2}{%
+\subsubsection{METHOD 2:}\label{method-2}}
+
+In the METHOD 1 above, rptr turned out to be a pointer to type "one
+dimensional array of COLS integers". It turns out that there is syntax
+which can be used for this type without the need of \textbf{typedef}. If
+we write:
+
+\begin{minted}{c}
+
+    int (*xptr)[COLS];
+\end{minted}
+
+the variable \textbf{xptr} will have all the same characteristics as the
+variable \textbf{rptr} in METHOD 1 above, and we need not use the
+\textbf{typedef} keyword. Here \textbf{xptr} is a pointer to an array of
+integers and the size of that array is given by the \textbf{\#defined
+COLS}. The parenthesis placement makes the pointer notation predominate,
+even though the array notation has higher precedence. i.e. had we
+written
+
+\begin{minted}{c}
+    int *xptr[COLS];
+\end{minted}
+
+we would have defined \textbf{xptr} as an array of pointers holding the
+number of pointers equal to that \#defined by COLS. That is not the same
+thing at all. However, arrays of pointers have their use in the dynamic
+allocation of two dimensional arrays, as will be seen in the next 2
+methods.
+
+\hypertarget{method-3}{%
+\subsubsection{METHOD 3:}\label{method-3}}
+
+Consider the case where we do not know the number of elements in each
+row at compile time, i.e. both the number of rows and number of columns
+must be determined at run time. One way of doing this would be to create
+an array of pointers to type \textbf{int} and then allocate space for
+each row and point these pointers at each row. Consider:
+
+-----------  Program 9.2  -----------------------------------
+\inputminted{c}{../src/ch9-2.c}
+--------- end program 9.2 -----------------------------------
+
+In the above code \textbf{rowptr} is a pointer to pointer to type
+\textbf{int}. In this case it points to the first element of an array of
+pointers to type \textbf{int}. Consider the number of calls to
+\textbf{malloc()}:
+
+\begin{minted}{c}
+
+    To get the array of pointers             1     call
+    To get space for the rows                5     calls
+                                          -----
+                     Total                   6     calls
+\end{minted}
+
+If you choose to use this approach note that while you can use the array
+notation to access individual elements of the array, e.g.
+\textbf{rowptr{[}row{]}{[}col{]} = 17;}, it does not mean that the data
+in the "two dimensional array" is contiguous in memory.
+
+You can, however, use the array notation just as if it were a continuous
+block of memory. For example, you can write:
+
+\begin{minted}{c}
+    rowptr[row][col] = 176;
+\end{minted}
+
+just as if rowptr were the name of a two dimensional array created at
+compile time. Of course \textbf{row} and \textbf{col} must be within the
+bounds of the array you have created, just as with an array created at
+compile time.
+
+If you want to have a contiguous block of memory dedicated to the
+storage of the elements in the array you can do it as follows:
+
+\hypertarget{method-4}{%
+\subsubsection{METHOD 4:}\label{method-4}}
+
+In this method we allocate a block of memory to hold the whole array
+first. We then create an array of pointers to point to each row. Thus
+even though the array of pointers is being used, the actual array in
+memory is contiguous. The code looks like this:
+
+-----------  Program 9.3  -----------------------------------
+\inputminted{c}{../src/ch9-3.c}
+--------- end program 9.3 -----------------------------------
+
+Consider again, the number of calls to malloc()
+
+\begin{minted}{c}
+    To get room for the array itself      1      call
+    To get room for the array of ptrs     1      call
+                                        ----
+                         Total            2      calls
+\end{minted}
+
+Now, each call to \textbf{malloc()} creates additional space overhead
+since \textbf{malloc()} is generally implemented by the operating system
+forming a linked list which contains data concerning the size of the
+block. But, more importantly, with large arrays (several hundred rows)
+keeping track of what needs to be freed when the time comes can be more
+cumbersome. This, combined with the contiguousness of the data block
+that permits initialization to all zeroes using \textbf{memset()} would
+seem to make the second alternative the preferred one.
+
+As a final example on multidimensional arrays we will illustrate the
+dynamic allocation of a three dimensional array. This example will
+illustrate one more thing to watch when doing this kind of allocation.
+For reasons cited above we will use the approach outlined in alternative
+two. Consider the following code:
+
+-----------  Program 9.4  -----------------------------------
+\inputminted{c}{../src/ch9-4.c}
+--------- end program 9.4 -----------------------------------
+
+If you have followed this tutorial up to this point you should have no
+problem deciphering the above on the basis of the comments alone. There
+are a couple of points that should be made however. Let's start with the
+line which reads:
+
+\begin{minted}{c}
+    Arr3D[z][y] = space + (z*(X_DIM * Y_DIM) + y*X_DIM);
+\end{minted}
+
+Note that here \textbf{space} is a character pointer, which is the same
+type as \textbf{Arr3D{[}z{]}{[}y{]}}. It is important that when adding
+an integer, such as that obtained by evaluation of the expression
+\textbf{(z*(X\_DIM * Y\_DIM) + y*X\_DIM)}, to a pointer, the result is a
+new pointer value. And when assigning pointer values to pointer
+variables the data types of the value and variable must match.
+
+\begin{comment}
+\href{ch10x.htm}{Chapter 10: Pointers to Functions}
+
+\href{pointers.htm}{Back to Table of Contents}
+\end{comment}

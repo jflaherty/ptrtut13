@@ -1,0 +1,129 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode=true}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[12pt, letterpaper]{article}
+% \usepackage[
+%   margin=2cm,
+%   includefoot,
+%   footskip=30pt,
+% ]{geometry}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{comment}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={A Tutorial on Pointers and Arrays in C},
+  pdfauthor={Ted Jensen},
+  pdfkeywords={pointers,programming,computer,tutorial},
+  hidelinks,
+}
+\urlstyle{same} % disable monospaced font for URLs
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{A Tutorial on Pointers and Arrays in C}
+\author{Ted Jensen}
+\date{April 2019}
+
+\begin{document}
+\maketitle
+
+Available in various formats via https://github.com/jflaherty/ptrtut13\\
+
+\tableofcontents
+%\href{prefacex.htm}{Preface}\\
+\newpage
+\input{./prefacex.tex}
+
+%\href{introx.htm}{Introduction}\\
+\newpage
+\input{./introx.tex}
+
+%\href{ch1x.htm}{Chapter 1: What is a Pointer?}\\
+\newpage
+\input{./ch1x.tex}
+
+%\href{ch2x.htm}{Chapter 2: Pointer Types and Arrays}\\
+\newpage
+\input{./ch2x.tex}
+
+%\href{ch3x.htm}{Chapter 3: Pointers and Strings}\\
+\newpage
+\input{./ch3x.tex}
+
+%\href{ch4x.htm}{Chapter 4: More on Strings}\\
+\newpage
+\input{./ch4x.tex}
+
+%\href{ch5x.htm}{Chapter 5: Pointers and Structures}\\
+\newpage
+\input{./ch5x.tex}
+
+%\href{ch6x.htm}{Chapter 6: More on Strings and Arrays of Strings}\\
+\newpage
+\input{./ch6x.tex}
+
+%\href{ch7x.htm}{Chapter 7: More on Multi-Dimensional Arrays}\\
+\newpage
+\input{./ch7x.tex}
+
+%\href{ch8x.htm}{Chapter 8: Pointers to Arrays}\\
+\newpage
+\input{./ch8x.tex}
+
+%\href{ch9x.htm}{Chapter 9: Pointers and Dynamic Allocation of Memory}\\
+\newpage
+\input{./ch9x.tex}
+
+%\href{ch10x.htm}{Chapter 10: Pointers to Functions}\\
+\newpage
+\input{./ch10x.tex}
+
+\end{document}

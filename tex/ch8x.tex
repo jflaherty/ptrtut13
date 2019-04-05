@@ -1,0 +1,118 @@
+\hypertarget{chapter-8-pointers-to-arrays}{%
+\subsection{CHAPTER 8: Pointers to
+Arrays}\label{chapter-8-pointers-to-arrays}}
+
+Pointers, of course, can be "pointed at" any type of data object,
+including arrays. While that was evident when we discussed program 3.1,
+it is important to expand on how we do this when it comes to
+multi-dimensional arrays.
+
+To review, in Chapter 2 we stated that given an array of integers we
+could point an integer pointer at that array using:
+
+\begin{minted}{c}
+    int *ptr;
+    ptr = &my_array[0];       /* point our pointer at the first
+                                 integer in our array */
+\end{minted}
+
+As we stated there, the type of the pointer variable must match the type
+of the first element of the array.
+
+In addition, we can use a pointer as a formal parameter of a function
+which is designed to manipulate an array. e.g.
+
+Given:
+
+\begin{minted}{c}
+    int array[3] = {'1', '5', '7'};
+    void a_func(int *p);
+\end{minted}
+
+Some programmers might prefer to write the function prototype as:
+
+\begin{minted}{c}
+   void a_func(int p[]);
+\end{minted}
+
+which would tend to inform others who might use this function that the
+function is designed to manipulate the elements of an array. Of course,
+in either case, what actually gets passed is the value of a pointer to
+the first element of the array, independent of which notation is used in
+the function prototype or definition. Note that if the array notation is
+used, there is no need to pass the actual dimension of the array since
+we are not passing the whole array, only the address to the first
+element.
+
+We now turn to the problem of the 2 dimensional array. As stated in the
+last chapter, C interprets a 2 dimensional array as an array of one
+dimensional arrays. That being the case, the first element of a 2
+dimensional array of integers is a one dimensional array of integers.
+And a pointer to a two dimensional array of integers must be a pointer
+to that data type. One way of accomplishing this is through the use of
+the keyword "typedef". typedef assigns a new name to a specified data
+type. For example:
+
+\begin{minted}{c}
+    typedef unsigned char byte;
+\end{minted}
+
+causes the name \textbf{byte} to mean type \textbf{unsigned char}. Hence
+
+\begin{minted}{c}
+    byte b[10];     would be an array of unsigned characters.
+\end{minted}
+
+Note that in the typedef declaration, the word \textbf{byte} has
+replaced that which would normally be the name of our \textbf{unsigned
+char}. That is, the rule for using \textbf{typedef} is that the new name
+for the data type is the name used in the definition of the data type.
+Thus in:
+
+\begin{minted}{c}
+    typedef int Array[10];
+\end{minted}
+
+Array becomes a data type for an array of 10 integers. i.e.
+\textbf{Array my\_arr;} declares \textbf{my\_arr} as an array of 10
+integers and \textbf{Array arr2d{[}5{]};} makes \textbf{arr2d} an array
+of 5 arrays of 10 integers each.
+
+Also note that \textbf{Array *p1d;} makes \textbf{p1d} a pointer to an
+array of 10 integers. Because \textbf{*p1d} points to the same type as
+\textbf{arr2d}, assigning the address of the two dimensional array
+\textbf{arr2d} to \textbf{p1d}, the pointer to a one dimensional array
+of 10 integers is acceptable. i.e. \textbf{p1d = \&arr2d{[}0{]};} or
+\textbf{p1d = arr2d;} are both correct.
+
+Since the data type we use for our pointer is an array of 10 integers we
+would expect that incrementing \textbf{p1d} by 1 would change its value
+by \textbf{10*sizeof(int)}, which it does. That is,
+\textbf{sizeof(*p1d)} is 20. You can prove this to yourself by writing
+and running a simple short program.
+
+Now, while using typedef makes things clearer for the reader and easier
+on the programmer, it is not really necessary. What we need is a way of
+declaring a pointer like \textbf{p1d} without the need of the
+\textbf{typedef} keyword. It turns out that this can be done and that
+
+\begin{minted}{c}
+    int (*p1d)[10];
+\end{minted}
+
+is the proper declaration, i.e. \textbf{p1d} here is a pointer to an
+array of 10 integers just as it was under the declaration using the
+Array type. Note that this is different from
+
+\begin{minted}{c}
+    int *p1d[10];
+\end{minted}
+
+which would make \textbf{p1d} the name of an array of 10 pointers to
+type \textbf{int}.
+
+\begin{comment}
+\href{ch9x.htm}{Chapter 9: Pointers and Dynamic Allocation of Memory}
+
+\href{pointers.htm}{Back to Table of Contents}
+\end{comment}

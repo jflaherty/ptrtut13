@@ -1,0 +1,123 @@
+\hypertarget{chapter-5-pointers-and-structures}{%
+\subsection{CHAPTER 5: Pointers and
+Structures}\label{chapter-5-pointers-and-structures}}
+
+As you may know, we can declare the form of a block of data containing
+different data types by means of a structure declaration. For example, a
+personnel file might contain structures which look something like:
+
+\begin{minted}{c}
+    struct tag {
+        char lname[20];        /* last name */
+        char fname[20];        /* first name */
+        int age;               /* age */
+        float rate;            /* e.g. 12.75 per hour */
+    };
+\end{minted}
+
+Let's say we have a bunch of these structures in a disk file and we want
+to read each one out and print out the first and last name of each one
+so that we can have a list of the people in our files. The remaining
+information will not be printed out. We will want to do this printing
+with a function call and pass to that function a pointer to the
+structure at hand. For demonstration purposes I will use only one
+structure for now. But realize the goal is the writing of the function,
+not the reading of the file which, presumably, we know how to do.
+
+For review, recall that we can access structure members with the dot
+operator as in:
+
+-----------  Program 5.1  -----------------------------------
+\inputminted{c}{../src/ch5-1.c}
+--------- end program 5.1 -----------------------------------
+
+Now, this particular structure is rather small compared to many used in
+C programs. To the above we might want to add:
+
+\begin{minted}{c}
+    date_of_hire;                  (data types not shown)
+    date_of_last_raise;
+    last_percent_increase;
+    emergency_phone;
+    medical_plan;
+    Social_S_Nbr;
+    etc.....
+\end{minted}
+
+If we have a large number of employees, what we want to do is manipulate
+the data in these structures by means of functions. For example we might
+want a function print out the name of the employee listed in any
+structure passed to it. However, in the original C (Kernighan \&
+Ritchie, 1st Edition) it was not possible to pass a structure, only a
+pointer to a structure could be passed. In ANSI C, it is now permissible
+to pass the complete structure. But, since our goal here is to learn
+more about pointers, we won't pursue that.
+
+Anyway, if we pass the whole structure it means that we must copy the
+contents of the structure from the calling function to the called
+function. In systems using stacks, this is done by pushing the contents
+of the structure on the stack. With large structures this could prove to
+be a problem. However, passing a pointer uses a minimum amount of stack
+space.
+
+In any case, since this is a discussion of pointers, we will discuss how
+we go about passing a pointer to a structure and then using it within
+the function.
+
+Consider the case described, i.e. we want a function that will accept as
+a parameter a pointer to a structure and from within that function we
+want to access members of the structure. For example we want to print
+out the name of the employee in our example structure.
+
+Okay, so we know that our pointer is going to point to a structure
+declared using struct tag. We declare such a pointer with the
+declaration:
+
+\begin{minted}{c}
+    struct tag *st_ptr;
+\end{minted}
+
+and we point it to our example structure with:
+
+\begin{minted}{c}
+    st_ptr = &my_struct;
+\end{minted}
+
+Now, we can access a given member by de-referencing the pointer. But,
+how do we de-reference the pointer to a structure? Well, consider the
+fact that we might want to use the pointer to set the age of the
+employee. We would write:
+
+\begin{minted}{c}
+    (*st_ptr).age = 63;
+\end{minted}
+
+Look at this carefully. It says, replace that within the parenthesis
+with that which \textbf{st\_ptr} points to, which is the structure
+\textbf{my\_struct}. Thus, this breaks down to the same as
+\textbf{my\_struct.age}.
+
+However, this is a fairly often used expression and the designers of C
+have created an alternate syntax with the same meaning which is:
+
+\begin{minted}{c}
+    st_ptr->age = 63;
+\end{minted}
+
+With that in mind, look at the following program:
+
+-----------  Program 5.2  -----------------------------------
+\inputminted{c}{../src/ch5-2.c}
+--------- end program 5.2 -------------------------------------
+
+Again, this is a lot of information to absorb at one time. The reader
+should compile and run the various code snippets and using a debugger
+monitor things like \textbf{my\_struct} and \textbf{p} while single
+stepping through the main and following the code down into the function
+to see what is happening.\\
+
+\begin{comment}
+\href{ch6x.htm}{Chapter 6: More on Strings and Arrays of Strings}
+
+\href{pointers.htm}{Back to Table of Contents}
+\end{comment}

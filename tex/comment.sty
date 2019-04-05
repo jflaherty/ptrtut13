@@ -1,0 +1,294 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comment.sty   version 3.8, July 2016
+% copyright 1998-2016 Victor Eijkhout
+%
+% Purpose:
+% selectively in/exclude pieces of text: the user can define new
+% comment versions, and each is controlled separately.
+% Special comments can be defined where the user specifies the
+% action that is to be taken with each comment line.
+%
+% Author
+%    Victor Eijkhout
+%    Texas Advanced Computing Center
+%    The University of Texas at Austin
+%    Austin TX 78758
+%    USA
+%
+%    victor@eijkhout.net
+%
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public License
+% as published by the Free Software Foundation; either version 2
+% of the License, or (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% For a copy of the GNU General Public License, write to the 
+% Free Software Foundation, Inc.,
+% 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA,
+% or find it on the net, for instance at
+% http://www.gnu.org/copyleft/gpl.html
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Usage: all text included between
+%   \begin{comment}
+%   ...
+%   \end{comment}
+% is discarded. 
+%
+% The opening and closing commands should appear on a line
+% of their own. No starting spaces, nothing after it.
+% This environment should work with arbitrary amounts
+% of comment, and the comment can be arbitrary text.
+%
+% Other `comment' environments are defined by
+% and are selected/deselected with
+% \includecomment{versiona}
+% \excludecoment{versionb}
+%
+% These environments are used as
+% \begin{versiona} ... \end{versiona}
+% with the opening and closing commands again on a line of 
+% their own.
+%
+% This is not a LaTeX environment: for an included comment, the
+% \begin and \end lines act as if they don't exist.
+% In particular, they don't imply grouping, so assignments 
+% &c are not local.
+%
+%%
+%% Guide to special effects
+%%
+% To understand what happens here, you need to know just a bit about
+% the implementation. Lines inside a comment are scooped up one at a
+% time, and written to an external file. This file can then be
+% included, or ignored. Or you can do stuff with it as you'll see now.
+%
+% Special comments are defined as
+% \specialcomment{name}{before commands}{after commands}
+% where the second and third arguments are executed before
+% and after each comment block. You can use this for global
+% formatting commands.
+% To keep definitions &c local, you can include \begingroup
+% in the `before commands' and \endgroup in the `after commands'.
+% ex:
+% \specialcomment{smalltt}
+%     {\begingroup\ttfamily\footnotesize}{\endgroup}
+% Of course, in this case you could probably have used the standard
+% LaTeX \newenvironment.
+%
+% With \specialcomment you do *not* have to do an additional
+% \includecomment{smalltt}
+% To remove 'smalltt' blocks, give \excludecomment{smalltt}
+% after the definition.
+%
+% The comment environments use two auxiliary commands. You can get
+% nifty special effects by redefining them.
+% 1/ the commented text is written to an external file. Default definition:
+%   \def\CommentCutFile{comment.cut}
+% 2/ included comments are processed like this:
+%   \def\ProcessCutFile{\input{\CommentCutFile}\relax}
+% and excluded files have
+%   \def\ProcessCutFile{}
+%
+% Fun use of special comments: the inclusion of the comment is done
+% by \ProcessCutFile, so you can redefine that:
+% \specialcomment{mathexamplewithcode}
+%  {\begingroup\def\ProcessCutFile{}} %1
+%  {\verbatiminput{\CommentCutFile}   %2
+%   \endgroup
+%   This gives:
+%   \begin{equation} \input{\CommentCutFile} \end{equation}
+%  }
+% 1: do not standard include the file
+% 2: input it verbatim, then again inside display math
+%
+% You can also apply processing to each line.
+% By defining a control sequence 
+% \def\Thiscomment##1{...} in the before commands the user can
+% specify what is to be done with each comment line. If something 
+% needs to be written to file, use \WriteCommentLine{the stuff}
+% Example:
+% \specialcomment{underlinecomment}
+%  {\def\ThisComment##1{\WriteCommentLine{\underline{##1}\par}}
+%   \par}
+%  {\par}
+%
+% Trick for short in/exclude macros (such as \maybe{this snippet}):
+%\includecomment{cond}
+%\newcommand{\maybe}[1]{}
+%\begin{cond}
+%\renewcommand{\maybe}[1]{#1}
+%\end{cond}
+%
+% Changes in 3.8
+% - utf8 is now correctly handled, at least if you use eTeX.
+%   (Thanks Henry Gregory for the solution)
+% Changes in 3.7
+% - only LaTeX support from now on
+% - code cleanup, and improvements on \specialcomment
+% - cleanup of the docs.
+% Changed in 3.6
+% - documentation update
+% - comment file inclusion is now a customizable command
+% Changes in 3.5
+% - corrected typo in header.
+% - changed author email
+% - corrected \specialcomment yet again.
+% - fixed excludecomment of an earlier defined environment.
+% Changes in 3.4
+% - added GNU public license
+% - added \processcomment, because Ivo's fix (above) brought an
+%   inconsistency to light.
+% Changes in 3.3
+% - updated author's address again
+% - parametrised \CommentCutFile
+% Changes in 3.2
+% - \specialcomment brought up to date (thanks to Ivo Welch).
+% Changes in version 3.1
+% - updated author's address
+% - cleaned up some code
+% - trailing contents on \begin{env} line is always discarded
+%  even if you've done \includecomment{env}
+% - comments no longer define grouping!! you can even
+%   \includecomment{env}
+%   \begin{env}
+%   \begin{itemize}
+%   \end{env}
+%  Isn't that something ...
+% - included comments are written to file and input again.
+%
+% Known bugs:
+% - excludecomment leads to one superfluous space
+% - processcomment leads to a superfluous line break at the start
+%
+\def\makeinnocent#1{\catcode`#1=12 }
+\def\csarg#1#2{\expandafter#1\csname#2\endcsname}
+\def\latexname{lplain}\def\latexename{LaTeX2e}
+\newwrite\CommentStream
+\def\DefaultCutFileName{\def\CommentCutFile{comment.cut}}
+\DefaultCutFileName
+
+% begin / end processing
+%
+% this contains the only real begin/endgroup commands, to keep the
+% catcode changes local.
+\def\ProcessComment#1% start it all of
+   {\def\CurrentComment{#1}%
+    \begingroup
+    \let\do\makeinnocent \dospecials 
+    \makeinnocent\^^L% and whatever other special cases
+    \endlinechar`\^^M\relax \catcode`\^^M=12\relax \xComment}
+{\catcode`\^^M=12 \endlinechar=-1 %
+ \gdef\xComment#1^^M{\ProcessCommentLine}
+ \gdef\ProcessCommentLine#1^^M{\def\test{#1}
+      \csarg\ifx{End\CurrentComment Test}\test
+          \edef\next{\endgroup\noexpand\EndOfComment{\CurrentComment}}%
+      \else \ThisComment{#1}\let\next\ProcessCommentLine
+      \fi \next}
+}
+
+%%
+%% Initial action: SetUpCutFile opens the CommentCutFile
+%% hook for initial actions: PrepareCutFile, default null
+%%
+\def\SetUpCutFile
+   {\immediate\openout\CommentStream=\CommentCutFile
+    \PrepareCutFile}
+\def\PrepareCutFile{}
+
+%%
+%% Each line action: ThisComment,
+%% default: WriteCommentLine on line contents
+%% version 3.8: write unexpanded if using eTeX
+%%
+\expandafter\ifx\csname eTeXversion\endcsname\relax
+    \long\def\WriteCommentLine#1{\immediate\write\CommentStream{#1}}
+\else
+    \long\def\WriteCommentLine#1{\immediate\write\CommentStream{\unexpanded{#1}}}
+\fi
+\let\ThisComment\WriteCommentLine
+
+%%
+%% Final action: ProcessCutFile
+%% hook for final action before file closing: FinalizeCutFile, default null
+%%
+\def\ProcessCutFile
+   {\message{Straight input of \CommentCutFile.}%
+    \input{\CommentCutFile}\relax}
+\def\CloseAndInputCutFile
+   {\FinalizeCutFile
+    \immediate\closeout\CommentStream
+    \ProcessCutFile}
+\def\FinalizeCutFile{}
+
+%%
+%% Define the different comment types
+%%
+% included comments: all the default actions
+\def\includecomment
+ #1{\message{Include comment '#1'}%
+    \csarg\def{After#1Comment}{\CloseAndInputCutFile}
+    \csarg\def{#1}{\endgroup \message{Including '#1' comment.}%
+        \DefaultCutFileName \SetUpCutFile \ProcessComment{#1}}%
+    \CommentEndDef{#1}}
+% excluded comment: also default
+\def\excludecomment
+ #1{\message{Excluding comment '#1'}%
+    \csarg\def{#1}{\endgroup \message{Excluding '#1' comment.}%
+        \begingroup
+           \DefaultCutFileName \def\ProcessCutFile{}%
+           \def\ThisComment####1{}\ProcessComment{#1}}%
+    \csarg\def{After#1Comment}{\CloseAndInputCutFile \endgroup}
+    \CommentEndDef{#1}}
+% special comment
+\long\def\specialcomment
+ #1#2#3{\message{Special comment '#1'}%
+    \csarg\def{#1}{\endgroup  \message{Processing '#1' comment.}%
+                   \DefaultCutFileName 
+                   #2\relax \SetUpCutFile
+                   % #2 before SetUp, so we can do renaming.
+          \message{Comment '#1' writing to \CommentCutFile.}%
+          \ProcessComment{#1}}%
+    \csarg\def{After#1Comment}{\CloseAndInputCutFile #3}%
+    \CommentEndDef{#1}}
+\long\def\generalcomment
+ #1#2#3{\message{General comment '#1'}%
+    \csarg\def{#1}{\endgroup % counter the environment open of LaTeX
+          #2 \relax \SetUpCutFile \ProcessComment{#1}}%
+    \csarg\def{After#1Comment}{\CloseAndInputCutFile #3}%
+    \CommentEndDef{#1}}
+\long\def\processcomment
+ #1#2#3#4{\message{Lines-Processing comment '#1'}%
+    \csarg\def{#1}{\endgroup \SetUpCutFile #2\relax
+          \ProcessComment{#1}}%
+    \csarg\def{After#1Comment}{#3\CloseAndInputCutFile #4}%
+    \CommentEndDef{#1}}
+\def\leveledcomment
+ #1#2{\message{Include comment '#1' up to level '#2'}%
+    %\csarg\newif{if#1IsStreamingComment}
+    %\csarg\newif{if#1IsLeveledComment}
+    %\csname #1IsLeveledCommenttrue\endcsname
+    \csarg\let{After#1Comment}\CloseAndInputCutFile
+    \csarg\def{#1}{\SetUpCutFile
+        \ProcessCommentWithArg{#1}}%
+    \CommentEndDef{#1}}
+
+\makeatletter
+\def\EndOfComment#1{%
+    \csname After#1Comment\endcsname
+    % sabotage LaTeX's environment testing
+    \begingroup\def\@currenvir{#1}\end{#1}}
+\def\CommentEndDef#1{{\escapechar=-1\relax
+    \csarg\xdef{End#1Test}{\string\\end\string\{#1\string\}}%
+    }}
+\makeatother
+
+\excludecomment{comment}
+
+\endinput

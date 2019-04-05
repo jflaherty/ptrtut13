@@ -1,0 +1,235 @@
+\hypertarget{chapter-3-pointers-and-strings}{%
+\subsection{CHAPTER 3: Pointers and
+Strings}\label{chapter-3-pointers-and-strings}}
+
+The study of strings is useful to further tie in the relationship
+between pointers and arrays. It also makes it easy to illustrate how
+some of the standard C string functions can be implemented. Finally it
+illustrates how and when pointers can and should be passed to functions.
+
+In C, strings are arrays of characters. This is not necessarily true in
+other languages. In BASIC, Pascal, Fortran and various other languages,
+a string has its own data type. But in C it does not. In C a string is
+an array of characters terminated with a binary zero character (written
+as \textbf{'\textbackslash0'}). To start off our discussion we will
+write some code which, while preferred for illustrative purposes, you
+would probably never write in an actual program. Consider, for example:
+
+\begin{minted}{c}
+    char my_string[40];
+
+    my_string[0] = 'T';
+    my_string[1] = 'e';
+    my_string[2] = 'd':
+    my_string[3] = '\0';
+\end{minted}
+
+While one would never build a string like this, the end result is a
+string in that it is an array of characters \textbf{terminated with a
+nul character}. By definition, in C, a string is an array of characters
+terminated with the nul character. Be aware that "nul" is \textbf{not}
+the same as "NULL". The nul refers to a zero as defined by the escape
+sequence \textbf{'\textbackslash0'}. That is it occupies one byte of
+memory. NULL, on the other hand, is the name of the macro used to
+initialize null pointers. NULL is \#defined in a header file in your C
+compiler, nul may not be \#defined at all.
+
+Since writing the above code would be very time consuming, C permits two
+alternate ways of achieving the same thing. First, one might write:
+
+\begin{minted}{c}
+    char my_string[40] = {'T', 'e', 'd', '\0',};    
+\end{minted}
+
+But this also takes more typing than is convenient. So, C permits:
+
+\begin{minted}{c}
+    char my_string[40] = "Ted";
+\end{minted}
+
+When the double quotes are used, instead of the single quotes as was
+done in the previous examples, the nul character (
+\textbf{'\textbackslash0}' ) is automatically appended to the end of the
+string.
+
+In all of the above cases, the same thing happens. The compiler sets
+aside an contiguous block of memory 40 bytes long to hold characters and
+initialized it such that the first 4 characters are
+\textbf{Ted\textbackslash0}.
+
+Now, consider the following program:
+
+-----------  Program 3.1  -----------------------------------
+\inputminted{c}{../src/ch3-1.c}
+--------- end program 3.1 -----------------------------------
+
+
+In the above we start out by defining two character arrays of 80
+characters each. Since these are globally defined, they are initialized
+to all \textbf{'\textbackslash0}'s first. Then, \textbf{strA} has the
+first 42 characters initialized to the string in quotes.
+
+Now, moving into the code, we declare two character pointers and show
+the string on the screen. We then "point" the pointer \textbf{pA} at
+\textbf{strA}. That is, by means of the assignment statement we copy the
+address of \textbf{strA{[}0{]}} into our variable \textbf{pA}. We now
+use \textbf{puts()} to show that which is pointed to by \textbf{pA} on
+the screen. Consider here that the function prototype for
+\textbf{puts()} is:
+
+\begin{minted}{c}
+    int puts(const char *s); 
+\end{minted}
+
+For the moment, ignore the \textbf{const}. The parameter passed to
+\textbf{puts()} is a pointer, that is the \textbf{value} of a pointer
+(since all parameters in C are passed by value), and the value of a
+pointer is the address to which it points, or, simply, an address. Thus
+when we write \textbf{puts(strA);} as we have seen, we are passing the
+address of \textbf{strA{[}0{]}}.
+
+Similarly, when we write \textbf{puts(pA);} we are passing the same
+address, since we have set \textbf{pA = strA;}
+
+Given that, follow the code down to the \textbf{while()} statement on
+line A. Line A states:
+
+While the character pointed to by \textbf{pA} (i.e. \textbf{*pA}) is not
+a nul character (i.e. the terminating \textbf{'\textbackslash0}'), do
+the following:
+
+Line B states: copy the character pointed to by \textbf{pA} to the space
+pointed to by \textbf{pB}, then increment \textbf{pA} so it points to
+the next character and \textbf{pB} so it points to the next space.
+
+When we have copied the last character, \textbf{pA} now points to the
+terminating nul character and the loop ends. However, we have not copied
+the nul character. And, by definition a string in C \textbf{must} be nul
+terminated. So, we add the nul character with line C.
+
+It is very educational to run this program with your debugger while
+watching \textbf{strA}, \textbf{strB}, \textbf{pA} and \textbf{pB} and
+single stepping through the program. It is even more educational if
+instead of simply defining \textbf{strB{[}{]}} as has been done above,
+initialize it also with something like:
+
+\begin{minted}{c}
+    strB[80] = "12345678901234567890123456789012345678901234567890"
+\end{minted}
+
+where the number of digits used is greater than the length of
+\textbf{strA} and then repeat the single stepping procedure while
+watching the above variables. Give these things a try!
+
+Getting back to the prototype for \textbf{puts()} for a moment, the
+"const" used as a parameter modifier informs the user that the function
+will not modify the string pointed to by \textbf{s}, i.e. it will treat
+that string as a constant.
+
+Of course, what the above program illustrates is a simple way of copying
+a string. After playing with the above until you have a good
+understanding of what is happening, we can proceed to creating our own
+replacement for the standard \textbf{strcpy()} that comes with C. It
+might look like:
+
+\begin{minted}{c}
+   char *my_strcpy(char *destination, char *source)
+   {
+       char *p = destination;
+       while (*source != '\0')
+       {
+           *p++ = *source++;
+       }
+       *p = '\0';
+       return destination;
+   }   
+\end{minted}
+
+In this case, I have followed the practice used in the standard routine
+of returning a pointer to the destination.
+
+Again, the function is designed to accept the values of two character
+pointers, i.e. addresses, and thus in the previous program we could
+write:
+
+\begin{minted}{c}
+    int main(void)
+    {
+        my_strcpy(strB, strA);
+        puts(strB);
+    }    
+\end{minted}
+
+I have deviated slightly from the form used in standard C which would
+have the prototype:
+
+\begin{minted}{c}
+    char *my_strcpy(char *destination, const char *source);  
+\end{minted}
+
+Here the "const" modifier is used to assure the user that the function
+will not modify the contents pointed to by the source pointer. You can
+prove this by modifying the function above, and its prototype, to
+include the "const" modifier as shown. Then, within the function you can
+add a statement which attempts to change the contents of that which is
+pointed to by source, such as:
+
+\begin{minted}{c}
+    *source = 'X';
+\end{minted}
+
+which would normally change the first character of the string to an X.
+The const modifier should cause your compiler to catch this as an error.
+Try it and see.
+
+Now, let's consider some of the things the above examples have shown us.
+First off, consider the fact that \textbf{*ptr++} is to be interpreted
+as returning the value pointed to by \textbf{ptr} and then incrementing
+the pointer value. This has to do with the precedence of the operators.
+Were we to write \textbf{(*ptr)++} we would increment, not the pointer,
+but that which the pointer points to! i.e. if used on the first
+character of the above example string the 'T' would be incremented to a
+'U'. You can write some simple example code to illustrate this.
+
+Recall again that a string is nothing more than an array of characters,
+with the last character being a \textbf{'\textbackslash0'}. What we have
+done above is deal with copying an array. It happens to be an array of
+characters but the technique could be applied to an array of integers,
+doubles, etc. In those cases, however, we would not be dealing with
+strings and hence the end of the array would not be marked with a
+special value like the nul character. We could implement a version that
+relied on a special value to identify the end. For example, we could
+copy an array of positive integers by marking the end with a negative
+integer. On the other hand, it is more usual that when we write a
+function to copy an array of items other than strings we pass the
+function the number of items to be copied as well as the address of the
+array, e.g. something like the following prototype might indicate:
+
+\begin{minted}{c}
+    void int_copy(int *ptrA, int *ptrB, int nbr);
+\end{minted}
+
+where \textbf{nbr} is the number of integers to be copied. You might
+want to play with this idea and create an array of integers and see if
+you can write the function \textbf{int\_copy()} and make it work.
+
+This permits using functions to manipulate large arrays. For example, if
+we have an array of 5000 integers that we want to manipulate with a
+function, we need only pass to that function the address of the array
+(and any auxiliary information such as nbr above, depending on what we
+are doing). The array itself does \textbf{not} get passed, i.e. the
+whole array is not copied and put on the stack before calling the
+function, only its address is sent.
+
+This is different from passing, say an integer, to a function. When we
+pass an integer we make a copy of the integer, i.e. get its value and
+put it on the stack. Within the function any manipulation of the value
+passed can in no way effect the original integer. But, with arrays and
+pointers we can pass the address of the variable and hence manipulate
+the values of the original variables.
+
+\begin{comment}
+\href{ch4x.htm}{Chapter 4: More on Strings}
+
+\href{pointers.htm}{Back to Table of Contents}
+\end{comment}

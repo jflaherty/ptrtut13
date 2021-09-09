@@ -1,0 +1,16 @@
+\contentsline {subsection}{PREFACE}{2}{section*.2}%
+\contentsline {subsubsection}{Acknowledgements:}{2}{section*.3}%
+\contentsline {subsubsection}{About the Author:}{2}{section*.4}%
+\contentsline {subsubsection}{About the Maintainer}{3}{section*.5}%
+\contentsline {subsubsection}{Other versions of this document:}{3}{section*.6}%
+\contentsline {subsection}{INTRODUCTION}{4}{section*.7}%
+\contentsline {subsection}{CHAPTER 1: What is a pointer?}{5}{section*.8}%
+\contentsline {subsection}{CHAPTER 2: Pointer types and Arrays}{11}{section*.9}%
+\contentsline {subsection}{CHAPTER 3: Pointers and Strings}{16}{section*.10}%
+\contentsline {subsection}{CHAPTER 4: More on Strings}{22}{section*.11}%
+\contentsline {subsection}{CHAPTER 5: Pointers and Structures}{25}{section*.12}%
+\contentsline {subsection}{CHAPTER 6: Some more on Strings, and Arrays of Strings}{29}{section*.13}%
+\contentsline {subsection}{CHAPTER 7: More on Multi-Dimensional Arrays}{34}{section*.14}%
+\contentsline {subsection}{CHAPTER 8: Pointers to Arrays}{37}{section*.15}%
+\contentsline {subsection}{CHAPTER 9: Pointers and Dynamic Allocation of Memory}{39}{section*.16}%
+\contentsline {subsection}{CHAPTER 10: Pointers to Functions}{50}{section*.17}%

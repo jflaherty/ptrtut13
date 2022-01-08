@@ -3,6 +3,7 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
 <TITLE>Chapter 3</TITLE>
 <META name="Robots" content="NONE">
+<link rel="stylesheet" href="./style.css">
 </HEAD>
 <BODY>
 <H2>CHAPTER 3: Pointers and Strings </H2>
@@ -11,7 +12,7 @@ The study of strings is useful to further tie in the relationship
 between pointers and arrays. It also makes it easy to illustrate
 how some of the standard C string functions can be implemented.
 Finally it illustrates how and when pointers can and should be
-passed to functions. 
+passed to functions.
 <P>
 In C, strings are arrays of characters. This is not necessarily
 true in other languages. In BASIC, Pascal, Fortran and various
@@ -20,9 +21,9 @@ not. In C a string is an array of characters terminated with a
 binary zero character (written as <B>'\0'</B>). To start off our
 discussion we will write some code which, while preferred for
 illustrative purposes, you would probably never write in an actual
-program. Consider, for example: 
+program. Consider, for example:
 <PRE><CODE>
-  <FONT SIZE=2> </FONT><FONT FACE="Courier New"> char my_string[40];
+   char my_string[40];
 
     my_string[0] = 'T';
     my_string[1] = 'e';
@@ -40,13 +41,13 @@ The nul refers to a zero as defined by the escape sequence <B>'\0'</B>.
 That is it occupies one byte of memory. NULL, on the other hand,
 is the name of the macro used to initialize null pointers. NULL
 is #defined in a header file in your C compiler, nul may not be
-#defined at all. 
+#defined at all.
 <P>
 Since writing the above code would be very time consuming, C permits
 two alternate ways of achieving the same thing. First, one might
-write: 
+write:
 <PRE><CODE>
-    char my_string[40] = {'T', 'e', 'd', '\0',};    
+    char my_string[40] = {'T', 'e', 'd', '\0',};
 </CODE></PRE>
 <P>
 But this also takes more typing than is convenient. So, C permits:
@@ -56,14 +57,14 @@ But this also takes more typing than is convenient. So, C permits:
 <P>
 When the double quotes are used, instead of the single quotes
 as was done in the previous examples, the nul character ( <B>'\0</B>'
-) is automatically appended to the end of the string. 
+) is automatically appended to the end of the string.
 <P>
 In all of the above cases, the same thing happens. The compiler
 sets aside an contiguous block of memory 40 bytes long to hold
 characters and initialized it such that the first 4 characters
-are <B>Ted\0</B>. 
+are <B>Ted\0</B>.
 <P>
-Now, consider the following program: 
+Now, consider the following program:
 <PRE><CODE>
 ------------------program 3.1-------------------------------------
 
@@ -95,13 +96,13 @@ int main(void)
 
 --------- end program 3.1 -------------------------------------
 
-    
+
 </CODE></PRE>
 <P>
 In the above we start out by defining two character arrays of
 80 characters each. Since these are globally defined, they are
 initialized to all<B> '\0</B>'s first. Then,<B> strA</B> has the
-first 42 characters initialized to the string in quotes. 
+first 42 characters initialized to the string in quotes.
 <P>
 Now, moving into the code, we declare two character pointers and
 show the string on the screen. We then &quot;point&quot; the pointer
@@ -109,9 +110,9 @@ show the string on the screen. We then &quot;point&quot; the pointer
 statement we copy the address of <B>strA[0]</B> into our variable
 <B>pA</B>. We now use <B>puts()</B> to show that which is pointed
 to by <B>pA</B> on the screen. Consider here that the function
-prototype for <B>puts()</B> is: 
+prototype for <B>puts()</B> is:
 <PRE><CODE>
-    int puts(const char *s); 
+    int puts(const char *s);
 </CODE></PRE>
 <P>
 For the moment, ignore the <B>const</B>. The parameter passed
@@ -125,46 +126,46 @@ Similarly, when we write <B>puts(pA);</B> we are passing the same
 address, since we have set <B>pA = strA;</B>
 <P>
 Given that, follow the code down to the <B>while()</B> statement
-on line A. Line A states: 
+on line A. Line A states:
 <P>
 While the character pointed to by <B>pA</B> (i.e. <B>*pA</B>)
 is not a nul character (i.e. the terminating <B>'\0</B>'), do
-the following: 
+the following:
 <P>
 Line B states: copy the character pointed to by <B>pA</B> to the
 space pointed to by <B>pB</B>, then increment <B>pA</B> so it
 points to the next character and <B>pB</B> so it points to the
-next space. 
+next space.
 <P>
 When we have copied the last character, <B>pA</B> now points to
 the terminating nul character and the loop ends. However, we have
 not copied the nul character. And, by definition a string in C
 <B>must</B> be nul terminated. So, we add the nul character with
-line C. 
+line C.
 <P>
 It is very educational to run this program with your debugger
 while watching <B>strA</B>, <B>strB</B>, <B>pA</B> and <B>pB</B>
 and single stepping through the program. It is even more educational
 if instead of simply defining <B>strB[]</B> as has been done above,
-initialize it also with something like: 
+initialize it also with something like:
 <PRE><CODE>
     strB[80] = &quot;12345678901234567890123456789012345678901234567890&quot;
 </CODE></PRE>
 <P>
 where the number of digits used is greater than the length of
 <B>strA</B> and then repeat the single stepping procedure while
-watching the above variables. Give these things a try! 
+watching the above variables. Give these things a try!
 <P>
 Getting back to the prototype for <B>puts()</B> for a moment,
 the &quot;const&quot; used as a parameter modifier informs the
 user that the function will not modify the string pointed to by
-<B>s</B>, i.e. it will treat that string as a constant. 
+<B>s</B>, i.e. it will treat that string as a constant.
 <P>
 Of course, what the above program illustrates is a simple way
 of copying a string. After playing with the above until you have
 a good understanding of what is happening, we can proceed to creating
 our own replacement for the standard <B>strcpy()</B> that comes
-with C. It might look like: 
+with C. It might look like:
 <PRE><CODE>
    char *my_strcpy(char *destination, char *source)
    {
@@ -175,7 +176,7 @@ with C. It might look like:
        }
        *p = '\0';
        return destination;
-   }   
+   }
 </CODE></PRE>
 <P>
 In this case, I have followed the practice used in the standard
@@ -183,19 +184,19 @@ routine of returning a pointer to the destination.
 <P>
 Again, the function is designed to accept the values of two character
 pointers, i.e. addresses, and thus in the previous program we
-could write: 
+could write:
 <PRE><CODE>
     int main(void)
     {
         my_strcpy(strB, strA);
         puts(strB);
-    }    
+    }
 </CODE></PRE>
 <P>
 I have deviated slightly from the form used in standard C which
-would have the prototype: 
+would have the prototype:
 <PRE><CODE>
-    char *my_strcpy(char *destination, const char *source);  
+    char *my_strcpy(char *destination, const char *source);
 </CODE></PRE>
 <P>
 Here the &quot;const&quot; modifier is used to assure the user
@@ -204,14 +205,14 @@ source pointer. You can prove this by modifying the function above,
 and its prototype, to include the &quot;const&quot; modifier as
 shown. Then, within the function you can add a statement which
 attempts to change the contents of that which is pointed to by
-source, such as: 
+source, such as:
 <PRE><CODE>
     *source = 'X';
 </CODE></PRE>
 <P>
 which would normally change the first character of the string
 to an X. The const modifier should cause your compiler to catch
-this as an error. Try it and see. 
+this as an error. Try it and see.
 <P>
 Now, let's consider some of the things the above examples have
 shown us. First off, consider the fact that <B>*ptr++</B> is to
@@ -221,7 +222,7 @@ precedence of the operators. Were we to write <B>(*ptr)++</B>
 we would increment, not the pointer, but that which the pointer
 points to! i.e. if used on the first character of the above example
 string the 'T' would be incremented to a 'U'. You can write some
-simple example code to illustrate this. 
+simple example code to illustrate this.
 <P>
 Recall again that a string is nothing more than an array of characters,
 with the last character being a <B>'\0'</B>. What we have done
@@ -236,7 +237,7 @@ by marking the end with a negative integer. On the other hand,
 it is more usual that when we write a function to copy an array
 of items other than strings we pass the function the number of
 items to be copied as well as the address of the array, e.g. something
-like the following prototype might indicate: 
+like the following prototype might indicate:
 <PRE><CODE>
     void int_copy(int *ptrA, int *ptrB, int nbr);
 </CODE></PRE>
@@ -244,7 +245,7 @@ like the following prototype might indicate:
 where <B>nbr</B> is the number of integers to be copied. You might
 want to play with this idea and create an array of integers and
 see if you can write the function <B>int_copy()</B> and make it
-work. 
+work.
 <P>
 This permits using functions to manipulate large arrays. For example,
 if we have an array of 5000 integers that we want to manipulate
@@ -252,14 +253,14 @@ with a function, we need only pass to that function the address
 of the array (and any auxiliary information such as nbr above,
 depending on what we are doing). The array itself does <B>not</B>
 get passed, i.e. the whole array is not copied and put on the
-stack before calling the function, only its address is sent. 
+stack before calling the function, only its address is sent.
 <P>
 This is different from passing, say an integer, to a function.
 When we pass an integer we make a copy of the integer, i.e. get
 its value and put it on the stack. Within the function any manipulation
 of the value passed can in no way effect the original integer.
 But, with arrays and pointers we can pass the address of the variable
-and hence manipulate the values of the original variables. 
+and hence manipulate the values of the original variables.
 <DL>
 <DT><CENTER><A HREF=ch4x.htm>Chapter 4: More on Strings</A></P></CENTER>
 <DT><CENTER><A Href=pointers.htm>Back to Table of Contents</A></CENTER>

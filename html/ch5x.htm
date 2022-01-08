@@ -3,6 +3,7 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
 <TITLE>Chapter 5</TITLE>
 <META name="Robots" content="NONE">
+<link rel="stylesheet" href="./style.css">
 </HEAD>
 <BODY>
 <H2>CHAPTER 5: Pointers and Structures </H2>
@@ -10,7 +11,7 @@
 As you may know, we can declare the form of a block of data containing
 different data types by means of a structure declaration. For
 example, a personnel file might contain structures which look
-something like: 
+something like:
 <PRE><CODE>
     struct tag {
         char lname[20];        /* last name */
@@ -28,10 +29,10 @@ want to do this printing with a function call and pass to that
 function a pointer to the structure at hand. For demonstration
 purposes I will use only one structure for now. But realize the
 goal is the writing of the function, not the reading of the file
-which, presumably, we know how to do. 
+which, presumably, we know how to do.
 <P>
 For review, recall that we can access structure members with the
-dot operator as in: 
+dot operator as in:
 <PRE><CODE>
 --------------- program 5.1 ------------------
 
@@ -63,7 +64,7 @@ int main(void)
 </CODE></PRE>
 <P>
 Now, this particular structure is rather small compared to many
-used in C programs. To the above we might want to add: 
+used in C programs. To the above we might want to add:
 <PRE><CODE>
     date_of_hire;                  (data types not shown)
     date_of_last_raise;
@@ -82,33 +83,33 @@ original C (Kernighan &amp; Ritchie, 1st Edition) it was not possible
 to pass a structure, only a pointer to a structure could be passed.
 In ANSI C, it is now permissible to pass the complete structure.
 But, since our goal here is to learn more about pointers, we won't
-pursue that. 
+pursue that.
 <P>
 Anyway, if we pass the whole structure it means that we must copy
 the contents of the structure from the calling function to the
 called function. In systems using stacks, this is done by pushing
 the contents of the structure on the stack. With large structures
 this could prove to be a problem. However, passing a pointer uses
-a minimum amount of stack space. 
+a minimum amount of stack space.
 <P>
 In any case, since this is a discussion of pointers, we will discuss
 how we go about passing a pointer to a structure and then using
-it within the function. 
+it within the function.
 <P>
 Consider the case described, i.e. we want a function that will
 accept as a parameter a pointer to a structure and from within
 that function we want to access members of the structure. For
 example we want to print out the name of the employee in our example
-structure. 
+structure.
 <P>
 Okay, so we know that our pointer is going to point to a structure
 declared using struct tag. We declare such a pointer with the
-declaration: 
+declaration:
 <PRE><CODE>
     struct tag *st_ptr;
 </CODE></PRE>
 <P>
-and we point it to our example structure with: 
+and we point it to our example structure with:
 <PRE><CODE>
     st_ptr = &amp;my_struct;
 </CODE></PRE>
@@ -116,7 +117,7 @@ and we point it to our example structure with:
 Now, we can access a given member by de-referencing the pointer.
 But, how do we de-reference the pointer to a structure? Well,
 consider the fact that we might want to use the pointer to set
-the age of the employee. We would write: 
+the age of the employee. We would write:
 <PRE><CODE>
     (*st_ptr).age = 63;
 </CODE></PRE>
@@ -127,12 +128,12 @@ with that which <B>st_ptr</B> points to, which is the structure
 <P>
 However, this is a fairly often used expression and the designers
 of C have created an alternate syntax with the same meaning which
-is: 
+is:
 <PRE><CODE>
     st_ptr-&gt;age = 63;
 </CODE></PRE>
 <P>
-With that in mind, look at the following program: 
+With that in mind, look at the following program:
 <PRE><CODE>
 ------------ program 5.2 ---------------------
 

@@ -3,6 +3,7 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
 <TITLE>Chapter 8</TITLE>
 <META name="Robots" content="NONE">
+<link rel="stylesheet" href="./style.css">
 </HEAD>
 <BODY>
 <H2>CHAPTER 8: Pointers to Arrays</H2>
@@ -43,11 +44,11 @@ Some programmers might prefer to write the function prototype as:
    void a_func(int p[]);
 </CODE></PRE>
 
-which would tend to inform others who might use this function that the 
-function is designed to manipulate the elements of an array.  Of course, in 
-either case, what actually gets passed is the value of a pointer to the first 
+which would tend to inform others who might use this function that the
+function is designed to manipulate the elements of an array.  Of course, in
+either case, what actually gets passed is the value of a pointer to the first
 element of the array, independent of which notation is used in the function
-prototype or definition.  Note that if the array notation is used, there is no 
+prototype or definition.  Note that if the array notation is used, there is no
 need to pass the actual dimension of the array since we
 are not passing the whole array, only the address to the first element.
 

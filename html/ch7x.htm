@@ -3,6 +3,7 @@
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
 <TITLE>Chapter 7</TITLE>
 <META name="Robots" content="NONE">
+<link rel="stylesheet" href="./style.css">
 </HEAD>
 <BODY>
 <H2>CHAPTER 7: More on Multi-Dimensional Arrays</H2>
@@ -119,22 +120,22 @@ And to call this function we would then use:
     set_value(multi);
 </CODE></PRE>
 
- Now, within the function we have used the values #defined by ROWS and 
-COLS that set the limits on the for loops. But, these #defines are just constants 
-as far as the compiler is concerned, i.e. there is nothing to connect them to the 
-array size within the function. <B>row</B> and <B>col</B> are local variables, of course. The 
-formal parameter definition permits the compiler to determine the characteristics 
-associated with the pointer value that will be passed at run time.  We really 
-don't need the first dimension and, as will be seen later, there are occasions 
-where we would prefer not to define it within the parameter definition, out 
-of habit or consistency, I have not used it here. But, the second dimension 
-must be used as has been shown in the expression for the parameter. The 
-reason is that we need this in the evaluation of <B>m_array[row][col]</B> as has been 
-described. While the parameter defines the data type (<B>int</B> in this case) and the 
-automatic variables for row and column are defined in the for loops, only one 
-value can be passed using a single parameter. In this case, that is the value 
-of <B>multi</B> as noted in the call statement, i.e. the address of the first element, often 
-referred to as a pointer to the array. Thus, the only way we have of informing 
+ Now, within the function we have used the values #defined by ROWS and
+COLS that set the limits on the for loops. But, these #defines are just constants
+as far as the compiler is concerned, i.e. there is nothing to connect them to the
+array size within the function. <B>row</B> and <B>col</B> are local variables, of course. The
+formal parameter definition permits the compiler to determine the characteristics
+associated with the pointer value that will be passed at run time.  We really
+don't need the first dimension and, as will be seen later, there are occasions
+where we would prefer not to define it within the parameter definition, out
+of habit or consistency, I have not used it here. But, the second dimension
+must be used as has been shown in the expression for the parameter. The
+reason is that we need this in the evaluation of <B>m_array[row][col]</B> as has been
+described. While the parameter defines the data type (<B>int</B> in this case) and the
+automatic variables for row and column are defined in the for loops, only one
+value can be passed using a single parameter. In this case, that is the value
+of <B>multi</B> as noted in the call statement, i.e. the address of the first element, often
+referred to as a pointer to the array. Thus, the only way we have of informing
 the compiler of the 2nd dimension is by explicitly including it in the parameter definition.
 <P>
 
